@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .brand-blue { fill: #009DF6; }
+      .brand-text { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; font-weight: 800; }
+      .sub-text { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; font-weight: 700; letter-spacing: 0.12em; }
+    </style>
+  </defs>
+  <!-- Background is transparent -->
+  <g id="lsa-symbol">
+    <!-- Light rays bursting from top of 'L' -->
+    <polygon points="215,75 220,70 248,125 240,128" fill="#009DF6" />
+    <polygon points="190,85 197,82 216,132 208,134" fill="#009DF6" />
+    <polygon points="165,115 174,110 205,142 198,147" fill="#009DF6" />
+    <polygon points="172,145 180,140 202,154 196,160" fill="#009DF6" />
+    
+    <!-- Letter 'L' -->
+    <path class="brand-blue" d="M 200,165 L 246,165 L 246,275 L 325,275 L 325,320 L 200,320 Z" />
+    
+    <!-- Letter 'S' -->
+    <path class="brand-blue" d="M 405,160 C 445,160 472,180 472,215 C 472,242 452,258 418,266 L 392,272 C 372,277 362,284 362,295 C 362,310 378,322 408,322 C 430,322 452,314 468,302 L 485,335 C 462,352 432,362 402,362 C 355,362 322,338 322,295 C 322,267 344,250 380,242 L 406,236 C 424,231 432,224 432,213 C 432,201 418,193 398,193 C 380,193 360,200 345,212 L 328,178 C 350,166 378,160 405,160 Z" />
+
+    <!-- Letter 'A' integrated with Africa continent silhouette -->
+    <!-- Africa map silhouette forming the right arm and contour of A -->
+    <path class="brand-blue" d="M 505,320 L 565,165 L 610,165 
+      C 615,168 625,165 632,172 
+      C 638,176 645,174 650,182 
+      C 655,188 662,192 665,200 
+      C 670,215 675,225 685,230 
+      C 695,235 700,240 690,255 
+      C 680,270 668,285 660,300 
+      C 652,315 640,335 632,345 
+      C 628,350 622,342 618,335 
+      C 610,322 605,320 595,320 
+      L 580,320 L 572,300 L 535,300 L 526,320 Z 
+      M 545,260 L 562,260 L 554,215 Z" />
+      
+    <!-- Detailed African continent accurate overlay for pristine fidelity -->
+    <path class="brand-blue" d="M 565,165 C 575,150 600,150 615,160 C 625,165 640,160 655,175 C 665,185 680,190 685,210 C 690,225 710,230 710,245 C 705,255 690,265 680,285 C 675,300 660,325 645,340 C 638,348 630,345 625,335 C 618,322 610,320 598,320 L 575,320 L 605,245 C 610,230 605,210 595,200 C 585,190 575,180 565,165 Z" />
+  </g>
+
+  <!-- Tagline underneath: LIBRARIAN SPOTLIGHT AFRICA -->
+  <text x="400" y="375" text-anchor="middle" class="brand-blue sub-text" font-size="28" font-weight="700">LIBRARIAN SPOTLIGHT AFRICA</text>
+</svg>

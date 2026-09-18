@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: 'Newsreader', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Custom sleek scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Specific styling helpers to replicate the screenshot */
+.hero-gradient {
+  background: linear-gradient(135deg, #00003F 0%, #000028 100%);
+}
+
+.card-outline {
+  border: 1.5px solid #00003F;
+  box-shadow: 3px 3px 0px 0px rgba(0, 0, 63, 0.9);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-outline:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 5px 0px 0px rgba(0, 0, 63, 1);
+}
+
+.card-outline-subtle {
+  border: 1px solid #E2E8F0;
+  transition: all 0.2s ease-in-out;
+}
+
+.card-outline-subtle:hover {
+  border-color: #009DF6;
+  box-shadow: 0 10px 25px -5px rgba(0, 157, 246, 0.08);
+  transform: translateY(-2px);
+}
