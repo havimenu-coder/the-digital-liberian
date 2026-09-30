@@ -22,10 +22,8 @@ export const EventsTeaser: React.FC = () => {
 
   const upcomingEvent = events.find(e => e.status === 'upcoming' && e.published) || events[0];
 
-  // Countdown timer calculation
   useEffect(() => {
     if (!upcomingEvent?.date) return;
-
     const targetDate = new Date(upcomingEvent.date + 'T10:00:00');
 
     const updateTimer = () => {
@@ -49,110 +47,115 @@ export const EventsTeaser: React.FC = () => {
     return () => clearInterval(timer);
   }, [upcomingEvent?.date]);
 
-  if (!upcomingEvent) return null;
-
   return (
     <section className="py-16 sm:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-          <div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-brand-dark tracking-tight">
-              What's Happening
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
+          <div className="max-w-3xl">
+            <span className="text-xs uppercase tracking-widest text-brand-blue font-bold">
+              EVENTS
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-brand-dark tracking-tight leading-tight mt-1.5">
               Learn With Us. Connect With Us.
+            </h2>
+            <p className="mt-3 text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+              Explore upcoming programmes, workshops, masterclasses, webinars and other events from The Digital Librarian.
             </p>
           </div>
 
           <Link
-            to="/events#past"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-brand-dark hover:text-brand-blue transition-colors group"
+            to="/events"
+            className="inline-flex items-center gap-2 bg-brand-dark hover:bg-brand-blue text-white px-7 py-3 rounded-md text-sm font-semibold transition-all shadow-sm hover:shadow active:scale-95 flex-shrink-0"
           >
-            <span>See past events</span>
-            <ArrowRight className="w-4 h-4 text-brand-blue group-hover:translate-x-1 transition-transform" />
+            <span>View Upcoming Events</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        {/* Featured Upcoming Event Box (Matching Reference Screenshot) */}
-        <div className="bg-brand-dark rounded-2xl p-6 sm:p-8 text-white border border-blue-900/60 shadow-lg flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-          
-          <div className="space-y-4 max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-brand-blue/20 text-brand-blue border border-brand-blue/40 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-              Upcoming Event
-            </div>
-
-            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              {upcomingEvent.title}
-            </h3>
-
-            <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">
-              {upcomingEvent.tagline || upcomingEvent.description}
-            </p>
-
-            {/* Event Meta Details */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-300 pt-1">
-              <div className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-brand-blue" />
-                <span>{upcomingEvent.date}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-brand-blue" />
-                <span>{upcomingEvent.time}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-brand-blue" />
-                <span>{upcomingEvent.location}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Countdown & Action Column */}
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-6 w-full lg:w-auto">
+        {/* Featured Upcoming Event Box */}
+        {upcomingEvent && (
+          <div className="bg-brand-dark rounded-2xl p-6 sm:p-10 text-white border border-blue-900/60 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
             
-            {/* Live Countdown Timer */}
-            <div className="flex items-center gap-2 sm:gap-3 text-center">
-              <div className="bg-blue-950/80 border border-blue-800/80 rounded-lg p-2.5 min-w-[56px]">
-                <div className="font-serif text-xl sm:text-2xl font-bold text-white">
-                  {timeLeft.days}
-                </div>
-                <div className="text-[10px] uppercase tracking-wider text-slate-400">Days</div>
+            <div className="space-y-4 max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-brand-blue/20 text-brand-blue border border-brand-blue/40 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                Upcoming Programme
               </div>
 
-              <div className="bg-blue-950/80 border border-blue-800/80 rounded-lg p-2.5 min-w-[56px]">
-                <div className="font-serif text-xl sm:text-2xl font-bold text-white">
-                  {timeLeft.hours}
-                </div>
-                <div className="text-[10px] uppercase tracking-wider text-slate-400">Hours</div>
-              </div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                {upcomingEvent.title}
+              </h3>
 
-              <div className="bg-blue-950/80 border border-blue-800/80 rounded-lg p-2.5 min-w-[56px]">
-                <div className="font-serif text-xl sm:text-2xl font-bold text-white">
-                  {timeLeft.minutes}
-                </div>
-                <div className="text-[10px] uppercase tracking-wider text-slate-400">Mins</div>
-              </div>
+              <p className="text-sm text-slate-300 leading-relaxed font-normal">
+                {upcomingEvent.tagline || upcomingEvent.description}
+              </p>
 
-              <div className="bg-blue-950/80 border border-blue-800/80 rounded-lg p-2.5 min-w-[56px]">
-                <div className="font-serif text-xl sm:text-2xl font-bold text-brand-blue">
-                  {timeLeft.seconds}
+              {/* Event Meta Details */}
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-300 pt-1">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-brand-blue" />
+                  <span>{upcomingEvent.date}</span>
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-slate-400">Secs</div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-brand-blue" />
+                  <span>{upcomingEvent.time}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-brand-blue" />
+                  <span>{upcomingEvent.location}</span>
+                </div>
               </div>
             </div>
 
-            <Link
-              to={`/events/${upcomingEvent.slug}`}
-              className="inline-flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-6 py-3 rounded text-sm font-bold tracking-wide transition-all shadow-md active:scale-95 w-full sm:w-auto"
-            >
-              <span>View Event</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            {/* Countdown & Action Column */}
+            <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-6 w-full lg:w-auto">
+              
+              {/* Live Countdown Timer */}
+              <div className="flex items-center gap-2 sm:gap-3 text-center">
+                <div className="bg-blue-950/80 border border-blue-800/80 rounded-xl p-3 min-w-[62px]">
+                  <div className="font-serif text-xl sm:text-2xl font-bold text-white">
+                    {timeLeft.days}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-400">Days</div>
+                </div>
+
+                <div className="bg-blue-950/80 border border-blue-800/80 rounded-xl p-3 min-w-[62px]">
+                  <div className="font-serif text-xl sm:text-2xl font-bold text-white">
+                    {timeLeft.hours}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-400">Hours</div>
+                </div>
+
+                <div className="bg-blue-950/80 border border-blue-800/80 rounded-xl p-3 min-w-[62px]">
+                  <div className="font-serif text-xl sm:text-2xl font-bold text-white">
+                    {timeLeft.minutes}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-400">Mins</div>
+                </div>
+
+                <div className="bg-blue-950/80 border border-blue-800/80 rounded-xl p-3 min-w-[62px]">
+                  <div className="font-serif text-xl sm:text-2xl font-bold text-brand-blue">
+                    {timeLeft.seconds}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-400">Secs</div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+                <Link
+                  to={`/events/${upcomingEvent.slug}`}
+                  className="inline-flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-6 py-3 rounded-md text-sm font-semibold tracking-wide transition-all shadow-md active:scale-95 w-full sm:w-auto"
+                >
+                  <span>Event Details & Registration</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+            </div>
 
           </div>
-
-        </div>
+        )}
 
       </div>
     </section>

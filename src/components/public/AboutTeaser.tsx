@@ -10,8 +10,8 @@ interface AboutTeaserProps {
 }
 
 export const AboutTeaser: React.FC<AboutTeaserProps> = ({
-  heading = "More Than a Name. A Place to Learn, Build and Connect.",
-  description = "The Digital Librarian brings together knowledge, technology, learning and professional expertise in one place. Whether you are here to learn, find a resource, solve a problem, discover an opportunity or explore something new, there is something here for you.",
+  heading = "More Than a Website. A Platform for Learning, Solutions and Ideas.",
+  description = "Whether you are here to learn, find a resource, solve a problem, discover an opportunity or explore something new, there is something here for you.",
   ctaText = "Discover TheDL",
   ctaUrl = "/about"
 }) => {
@@ -22,9 +22,14 @@ export const AboutTeaser: React.FC<AboutTeaserProps> = ({
           
           {/* Left Column: Heading, Description & Link */}
           <div className="lg:col-span-7 space-y-6">
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-brand-dark tracking-tight leading-[1.18]">
-              {heading}
-            </h2>
+            <div>
+              <span className="text-xs uppercase tracking-widest text-brand-blue font-bold">
+                ABOUT THE DIGITAL LIBRARIAN
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-brand-dark tracking-tight leading-[1.18] mt-2">
+                {heading}
+              </h2>
+            </div>
 
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-normal">
               {description}
@@ -33,7 +38,7 @@ export const AboutTeaser: React.FC<AboutTeaserProps> = ({
             <div className="pt-2">
               <Link
                 to={ctaUrl}
-                className="inline-flex items-center gap-2 text-brand-dark hover:text-brand-blue font-semibold text-base group transition-colors"
+                className="inline-flex items-center gap-2 bg-brand-dark hover:bg-blue-950 text-white px-6 py-3 rounded-md text-sm font-semibold group transition-all shadow-sm active:scale-95"
               >
                 <span>{ctaText}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform text-brand-blue" />

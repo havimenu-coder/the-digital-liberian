@@ -84,44 +84,47 @@ export const Hero: React.FC = () => {
           {/* Right Column: Copy & Calls to Action */}
           <div className="lg:col-span-7 space-y-6 text-left order-1 lg:order-2">
             
-            <div className="space-y-3">
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-normal tracking-tight text-white leading-[1.12]">
-                {hero?.headline || "Making Knowledge, Technology and Opportunity Work for You."}
+            <div className="space-y-4">
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-normal tracking-tight text-white leading-[1.14]">
+                Learn something.<br />
+                Solve a problem.<br />
+                <span className="text-brand-blue">Build something better.</span>
               </h1>
 
               <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-2xl pt-2">
-                {hero?.description || "The Digital Librarian is a professional platform for digital solutions, learning, research, libraries, technology and capacity building — helping individuals and organisations access practical solutions, useful knowledge and expert guidance."}
+                The Digital Librarian (TheDL) is a professional platform for digital solutions, learning, research, libraries, media, technology and capacity building — helping individuals and organisations access practical solutions, useful knowledge and expert guidance.
               </p>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <a
-                href={hero?.primary_btn_url || "#what-we-do"}
+                href="#quick-explore"
                 className="inline-flex items-center justify-center bg-brand-blue hover:bg-brand-blue-hover text-white px-7 py-3 rounded-md text-base font-semibold transition-all shadow-md hover:shadow-lg active:scale-95"
               >
-                {hero?.primary_btn_text || "Explore TheDL"}
+                Explore TheDL
               </a>
 
               <Link
-                to={hero?.secondary_btn_url || "/contact"}
+                to="/contact"
                 className="inline-flex items-center justify-center border border-white/80 hover:bg-white hover:text-brand-dark text-white px-7 py-3 rounded-md text-base font-semibold transition-all shadow-sm active:scale-95"
               >
-                {hero?.secondary_btn_text || "Work With TheDL"}
+                Work With TheDL
               </Link>
             </div>
 
-            {/* Inline Ticker Tags List (Matching Reference Screenshot) */}
+            {/* Inline Ticker Tags List */}
             <div className="pt-6 border-t border-blue-900/40">
               <p className="text-xs sm:text-sm text-slate-300 font-medium tracking-wide flex flex-wrap items-center gap-2 sm:gap-3">
-                {(hero?.ticker_tags || [
+                {[
                   "Digital Solutions",
                   "Learning",
                   "Research",
                   "Libraries",
-                  "AI",
-                  "Media"
-                ]).map((tag, idx, arr) => (
+                  "AI & Media",
+                  "Technology",
+                  "Capacity Building"
+                ].map((tag, idx, arr) => (
                   <React.Fragment key={tag}>
                     <span className="hover:text-brand-blue transition-colors cursor-default">{tag}</span>
                     {idx < arr.length - 1 && (

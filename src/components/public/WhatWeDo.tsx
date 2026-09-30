@@ -1,40 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Library, BookMarked, Cpu, GraduationCap, MonitorPlay, Briefcase, ArrowRight } from 'lucide-react';
-import { dataStore } from '../../lib/storage';
-import { Service } from '../../types';
+import { Library, BookMarked, Cpu, GraduationCap, MonitorPlay, ArrowRight } from 'lucide-react';
 
-// Icon resolver helper
-const renderIcon = (iconName: string) => {
-  switch (iconName.toLowerCase()) {
-    case 'library':
-      return <Library className="w-8 h-8 text-brand-dark" />;
-    case 'bookmarked':
-    case 'research':
-      return <BookMarked className="w-8 h-8 text-brand-dark" />;
-    case 'cpu':
-    case 'ai':
-      return <Cpu className="w-8 h-8 text-brand-dark" />;
-    case 'graduationcap':
-    case 'capacity':
-      return <GraduationCap className="w-8 h-8 text-brand-dark" />;
-    case 'monitorplay':
-    case 'media':
-      return <MonitorPlay className="w-8 h-8 text-brand-dark" />;
-    default:
-      return <Briefcase className="w-8 h-8 text-brand-dark" />;
-  }
-};
+interface SolutionItem {
+  id: string;
+  title: string;
+  description: string;
+  ctaText: string;
+  link: string;
+  icon: React.ElementType;
+}
 
 export const WhatWeDo: React.FC = () => {
-  const [services, setServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    dataStore.getServices().then(res => setServices(res.filter(s => s.published)));
-    const handleUpdate = () => dataStore.getServices().then(res => setServices(res.filter(s => s.published)));
-    window.addEventListener('thedl_storage_update', handleUpdate);
-    return () => window.removeEventListener('thedl_storage_update', handleUpdate);
-  }, []);
+  const solutions: SolutionItem[] = [
+    {
+      id: "library-solutions",
+      title: "Library & Information Solutions",
+      description: "Digital and information solutions that help libraries and information organisations improve access, services, visibility and reach.",
+      ctaText: "Explore Library Solutions",
+      link: "/solutions/library-information",
+      icon: Library
+    },
+    {
+      id: "research-support",
+      title: "Research & Scholarly Support",
+      description: "Practical support for researchers around research writing, publication, scholarly communication, research visibility and the effective use of research tools.",
+      ctaText: "Explore Research Support",
+      link: "/solutions/research",
+      icon: BookMarked
+    },
+    {
+      id: "ai-digital-literacy",
+      title: "AI & Digital Literacy",
+      description: "Helping individuals and organisations understand, evaluate and use digital and AI tools with greater confidence, skill and responsibility.",
+      ctaText: "Explore AI & Digital Literacy",
+      link: "/solutions/ai-digital-literacy",
+      icon: Cpu
+    },
+    {
+      id: "capacity-building",
+      title: "Capacity Building & Professional Development",
+      description: "Workshops, masterclasses, coaching and professional learning experiences designed around practical needs.",
+      ctaText: "Explore Capacity Building",
+      link: "/solutions/capacity-building",
+      icon: GraduationCap
+    },
+    {
+      id: "ict-media",
+      title: "ICT & Media Solutions",
+      description: "ICT, digital and multimedia support for individuals, libraries and organisations seeking to create, communicate and work more effectively.",
+      ctaText: "Explore ICT & Media",
+      link: "/solutions",
+      icon: MonitorPlay
+    }
+  ];
 
   return (
     <section id="what-we-do" className="py-16 sm:py-20 bg-white">
@@ -42,62 +61,68 @@ export const WhatWeDo: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-12">
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-brand-dark tracking-tight leading-tight">
-            What We Do
+          <span className="text-xs uppercase tracking-widest text-brand-blue font-bold">
+            WHAT WE DO
+          </span>
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-brand-dark tracking-tight leading-tight mt-1.5">
+            Practical Expertise. Real Solutions.
           </h2>
           <p className="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-            The Digital Librarian works across several connected areas where people, knowledge and technology meet. Practical expertise that solves real organizational challenges.
+            TheDL works across five connected areas where people, knowledge and technology meet.
           </p>
         </div>
 
-        {/* 5 Service Cards Row (Matching Reference Screenshot) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
-          {services.slice(0, 5).map((service) => (
-            <div
-              key={service.id}
-              className="bg-white rounded-xl border-2 border-brand-dark p-5 flex flex-col justify-between hover:shadow-lg transition-all duration-200 group relative min-h-[280px]"
-            >
-              <div>
-                {/* Icon */}
-                <div className="mb-4 p-2.5 rounded-lg bg-slate-50 inline-block border border-slate-200 group-hover:bg-brand-blue-light transition-colors">
-                  {renderIcon(service.icon)}
+        {/* 5 Service Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          {solutions.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl border-2 border-brand-dark/90 p-5 flex flex-col justify-between hover:shadow-xl hover:border-brand-blue transition-all duration-300 group min-h-[300px]"
+              >
+                <div>
+                  {/* Icon */}
+                  <div className="mb-4 p-3 rounded-xl bg-slate-100 text-brand-dark group-hover:bg-brand-blue group-hover:text-white transition-colors duration-300 inline-block shadow-sm">
+                    <Icon className="w-7 h-7" />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-serif text-lg font-bold text-brand-dark leading-snug mb-2 group-hover:text-brand-blue transition-colors">
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                    {item.description}
+                  </p>
                 </div>
 
-                {/* Title */}
-                <h3 className="font-serif text-lg font-bold text-brand-dark leading-snug mb-2 group-hover:text-brand-blue transition-colors">
-                  {service.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-4">
-                  {service.short_description}
-                </p>
+                {/* Bottom Action Link */}
+                <div className="pt-4 mt-6 border-t border-slate-100">
+                  <Link
+                    to={item.link}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-dark group-hover:text-brand-blue transition-colors"
+                  >
+                    <span>{item.ctaText}</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-brand-blue" />
+                  </Link>
+                </div>
               </div>
-
-              {/* Bottom Arrow Action Link */}
-              <div className="pt-4 mt-auto border-t border-slate-100">
-                <Link
-                  to={`/solutions/${service.slug}`}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-dark group-hover:text-brand-blue transition-colors"
-                >
-                  <span>Explore Solution</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-brand-blue" />
-                </Link>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Bottom Callout Prompt (Matching Reference Screenshot) */}
-        <div className="mt-10 pt-4 flex items-center justify-between flex-wrap gap-4 border-t border-slate-100">
+        {/* Bottom Callout Prompt */}
+        <div className="mt-12 pt-6 flex items-center justify-between flex-wrap gap-4 border-t border-slate-100">
           <div className="text-sm font-medium text-slate-700">
-            Need something specific or custom advisory?
+            Need customized institutional advisory or specialized consultancy?
           </div>
           <Link
-            to="/contact"
+            to="/contact?subject=consultancy"
             className="inline-flex items-center gap-2 text-sm font-bold text-brand-dark hover:text-brand-blue group transition-colors"
           >
-            <span>Need something specific? Talk to TheDL</span>
+            <span>Talk to TheDL About Consultancy & Advisory</span>
             <ArrowRight className="w-4 h-4 text-brand-blue group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
