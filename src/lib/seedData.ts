@@ -18,9 +18,9 @@ import {
 export const initialSiteSettings: SiteSettings = {
   site_name: "The Digital Librarian",
   site_tagline: "Digital Solutions · Learning · Research · Libraries · AI · Media",
-  logo_url: "/images/digital-librarian-logo4.jpg",
+  logo_url: "/images/digital-librarian-logo.png",
   logo_alt_text: "The Digital Librarian (TheDL) Logo",
-  favicon_url: "/images/digital-librarian-logo4.jpg",
+  favicon_url: "/images/digital-librarian-logo.png",
   primary_color: "#FFFFFF",
   accent_color: "#009DF6",
   dark_color: "#00003F",
