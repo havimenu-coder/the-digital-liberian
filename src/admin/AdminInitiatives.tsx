@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Award, Star, Globe } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Initiative, Honoree } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminInitiatives: React.FC = () => {
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
@@ -135,6 +136,15 @@ export const AdminInitiatives: React.FC = () => {
                 value={editingHonoree.featured_quote}
                 onChange={e => setEditingHonoree({ ...editingHonoree, featured_quote: e.target.value })}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Honoree Portrait / Photograph *"
+                value={editingHonoree.photo_url || ''}
+                onChange={url => setEditingHonoree({ ...editingHonoree, photo_url: url })}
+                placeholder="Upload portrait, browse media library, or paste image URL"
+                helperText="Upload the official photograph or portrait of the African Librarian of the Month."
               />
             </div>
           </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, X, Calendar, Clock, MapPin, Eye } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Event } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminEvents: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -173,6 +174,16 @@ export const AdminEvents: React.FC = () => {
                 value={editingEvent.description}
                 onChange={e => setEditingEvent({ ...editingEvent, description: e.target.value })}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Event Flyer / Promotional Banner"
+                value={editingEvent.flyer_url || ''}
+                onChange={url => setEditingEvent({ ...editingEvent, flyer_url: url })}
+                placeholder="Upload event flyer, select from media, or paste image URL"
+                helperText="Upload the promotional flyer or poster for this masterclass or workshop."
               />
             </div>
 

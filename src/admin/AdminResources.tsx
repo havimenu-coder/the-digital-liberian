@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, X, BookOpen, Cpu, ExternalLink } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Resource, AITool } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminResources: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'resources' | 'ai_tools'>('resources');
@@ -225,6 +226,15 @@ export const AdminResources: React.FC = () => {
                 onChange={e => setEditingResource({ ...editingResource, external_url: e.target.value })}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
                 placeholder="https://youtube.com/..."
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Resource Thumbnail / Book Cover"
+                value={editingResource.thumbnail_url || ''}
+                onChange={url => setEditingResource({ ...editingResource, thumbnail_url: url })}
+                placeholder="Upload cover image, browse media library, or paste image URL"
+                helperText="Upload a book cover, video preview poster, or resource illustration."
               />
             </div>
           </div>

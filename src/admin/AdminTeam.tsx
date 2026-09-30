@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, X, Users } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { TeamMember } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminTeam: React.FC = () => {
   const [team, setTeam] = useState<TeamMember[]>([]);
@@ -121,6 +122,15 @@ export const AdminTeam: React.FC = () => {
                 value={editingMember.bio}
                 onChange={e => setEditingMember({ ...editingMember, bio: e.target.value })}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Profile Photograph *"
+                value={editingMember.photo_url || ''}
+                onChange={url => setEditingMember({ ...editingMember, photo_url: url })}
+                placeholder="Upload photo, browse media library, or paste image URL"
+                helperText="Upload a professional portrait of the team member."
               />
             </div>
           </div>

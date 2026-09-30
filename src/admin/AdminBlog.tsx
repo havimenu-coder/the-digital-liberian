@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, X, Calendar, Clock, Eye } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { BlogPost } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminBlog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -134,6 +135,26 @@ export const AdminBlog: React.FC = () => {
                 value={editingPost.content}
                 onChange={e => setEditingPost({ ...editingPost, content: e.target.value })}
                 className="w-full px-3 py-2 text-xs font-mono border border-slate-300 rounded"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Featured Article Cover Image"
+                value={editingPost.featured_image || ''}
+                onChange={url => setEditingPost({ ...editingPost, featured_image: url })}
+                placeholder="Upload an image, browse media, or paste URL"
+                helperText="Upload from your computer or pick from the media library to use as the hero banner."
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Author Avatar / Portrait"
+                value={editingPost.author_avatar || ''}
+                onChange={url => setEditingPost({ ...editingPost, author_avatar: url })}
+                placeholder="Upload author portrait or paste URL"
+                helperText="Optional small circular photo displayed next to author name."
               />
             </div>
 

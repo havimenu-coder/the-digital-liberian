@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Page, PageSection, SectionType } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminPages: React.FC = () => {
   const [pages, setPages] = useState<Page[]>([]);
@@ -450,6 +451,56 @@ export const AdminPages: React.FC = () => {
                         className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none focus:border-brand-blue"
                       />
                     </div>
+                    <div className="sm:col-span-2">
+                      <ImageUploadField
+                        label="Hero Background / Banner Image (Optional)"
+                        value={sec.data.backgroundImage || sec.data.imageUrl || ''}
+                        onChange={url => handleUpdateSectionData(sec.id, 'backgroundImage', url)}
+                        placeholder="Upload hero background, browse media, or paste URL"
+                        helperText="Upload an image to display behind or alongside the hero section."
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {sec.type === 'text_image' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Section Heading *</label>
+                        <input
+                          type="text"
+                          value={sec.data.heading || ''}
+                          onChange={e => handleUpdateSectionData(sec.id, 'heading', e.target.value)}
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Subheading / Badge</label>
+                        <input
+                          type="text"
+                          value={sec.data.subheading || ''}
+                          onChange={e => handleUpdateSectionData(sec.id, 'subheading', e.target.value)}
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">Paragraph Text *</label>
+                      <textarea
+                        rows={4}
+                        value={sec.data.text || sec.data.content || ''}
+                        onChange={e => handleUpdateSectionData(sec.id, 'text', e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
+                      />
+                    </div>
+                    <ImageUploadField
+                      label="Feature Section Image *"
+                      value={sec.data.imageUrl || ''}
+                      onChange={url => handleUpdateSectionData(sec.id, 'imageUrl', url)}
+                      placeholder="Upload image from your computer, browse library, or paste URL"
+                      helperText="This image will be displayed alongside the section description text."
+                    />
                   </div>
                 )}
 

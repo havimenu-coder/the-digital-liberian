@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Building, ExternalLink } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Partner } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminPartners: React.FC = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -96,6 +97,15 @@ export const AdminPartners: React.FC = () => {
                 value={editing.description || ''}
                 onChange={e => setEditing({ ...editing, description: e.target.value })}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Partner / Institution Logo *"
+                value={editing.logo_url || ''}
+                onChange={url => setEditing({ ...editing, logo_url: url })}
+                placeholder="Upload logo, browse media library, or paste image URL"
+                helperText="Upload transparent PNG, SVG, or high-res brand mark."
               />
             </div>
           </div>

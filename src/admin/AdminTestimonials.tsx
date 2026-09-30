@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, X, Star } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Testimonial } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminTestimonials: React.FC = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -122,6 +123,15 @@ export const AdminTestimonials: React.FC = () => {
                 value={editing.quote}
                 onChange={e => setEditing({ ...editing, quote: e.target.value })}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                label="Author Photograph / Headshot (Optional)"
+                value={editing.photo_url || ''}
+                onChange={url => setEditing({ ...editing, photo_url: url })}
+                placeholder="Upload headshot, browse media library, or paste image URL"
+                helperText="Upload a photo of the client or colleague providing this testimonial."
               />
             </div>
           </div>

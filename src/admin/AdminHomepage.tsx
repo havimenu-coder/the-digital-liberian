@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Sparkles, Check, Image as ImageIcon } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { HomepageData } from '../types';
+import { ImageUploadField } from './components/ImageUploadField';
 
 export const AdminHomepage: React.FC = () => {
   const [data, setData] = useState<HomepageData | null>(null);
@@ -95,6 +96,19 @@ export const AdminHomepage: React.FC = () => {
                 hero: { ...data.hero, description: e.target.value }
               })}
               className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-brand-blue"
+            />
+          </div>
+
+          <div>
+            <ImageUploadField
+              label="Hero Illustration / Portrait Banner Image"
+              value={data.hero.image_url || ''}
+              onChange={url => setData({
+                ...data,
+                hero: { ...data.hero, image_url: url }
+              })}
+              placeholder="Upload hero image, pick from media, or paste image URL"
+              helperText="Upload the main hero graphic or founder portrait displayed in the homepage hero section."
             />
           </div>
 
