@@ -26,9 +26,12 @@ export const Footer: React.FC = () => {
             <Link to="/" className="inline-flex items-center group">
               <div className="h-12 sm:h-16 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
                 <img 
-                  src="/images/logo.png" 
+                  src="/images/digital-librarian-logo4.jpg" 
                   alt="The Digital Librarian Logo" 
-                  className="h-12 sm:h-16 w-auto object-contain filter brightness-110 drop-shadow-[0_2px_10px_rgba(0,157,246,0.35)]"
+                  className="h-12 sm:h-16 w-auto object-contain rounded-md filter brightness-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/images/logo.png';
+                  }}
                 />
               </div>
             </Link>
