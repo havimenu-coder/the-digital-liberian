@@ -23,21 +23,13 @@ export const Footer: React.FC = () => {
           
           {/* Brand & Slogan Column */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="inline-flex items-center space-x-3 group">
-              <div className="h-10 sm:h-12 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
+            <Link to="/" className="inline-flex items-center group">
+              <div className="h-12 sm:h-16 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
                 <img 
                   src="/images/logo.png" 
                   alt="The Digital Librarian Logo" 
-                  className="h-9 sm:h-11 w-auto object-contain filter brightness-110 drop-shadow-[0_2px_10px_rgba(0,157,246,0.35)]"
+                  className="h-12 sm:h-16 w-auto object-contain filter brightness-110 drop-shadow-[0_2px_10px_rgba(0,157,246,0.35)]"
                 />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white leading-none">
-                  THE DIGITAL
-                </span>
-                <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight">
-                  LIBRARIAN
-                </span>
               </div>
             </Link>
 

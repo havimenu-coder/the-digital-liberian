@@ -39,21 +39,13 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-20">
           
           {/* Logo Brand */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="h-10 sm:h-12 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
+          <Link to="/" className="flex items-center group">
+            <div className="h-12 sm:h-16 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
               <img 
                 src="/images/logo.png" 
                 alt="The Digital Librarian Logo" 
-                className="h-9 sm:h-11 w-auto object-contain"
+                className="h-12 sm:h-16 w-auto object-contain"
               />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-brand-dark group-hover:text-brand-blue transition-colors leading-none">
-                THE DIGITAL
-              </span>
-              <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-brand-dark group-hover:text-brand-blue transition-colors leading-tight">
-                LIBRARIAN
-              </span>
             </div>
           </Link>
 
