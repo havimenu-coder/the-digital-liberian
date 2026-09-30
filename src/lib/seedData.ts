@@ -135,7 +135,7 @@ export const initialServices: Service[] = [
     id: "service-1",
     title: "Library & Information Solutions",
     slug: "library-information",
-    short_description: "Digital and information solutions that help libraries and information organisations improve access, services, visibility and reach.",
+    short_description: "Supporting libraries and information organisations with automation, digital services, information access, visibility, e-resources and related solutions.",
     full_description: "Certified library consultancy with over 10 years of institutional leadership. We guide academic, special, and corporate libraries in automation (Koha, DSpace), institutional repository setup, e-library portal deployment, cataloguing standards, database subscriptions, and digital preservation.",
     icon: "Library",
     features: [
@@ -154,7 +154,7 @@ export const initialServices: Service[] = [
     id: "service-2",
     title: "Research & Scholarly Support",
     slug: "research",
-    short_description: "Practical support for researchers around research writing, publication, scholarly communication, research visibility and the effective use of research tools.",
+    short_description: "Supporting researchers with research writing, publication, scholarly communication, research visibility and the effective use of digital research tools.",
     full_description: "End-to-end scholarly enablement designed to increase publication success and citation impact. From systematic literature review mapping to citation management (Zotero, Mendeley), bibliometrics, journal selection, and avoiding predatory publishers.",
     icon: "BookMarked",
     features: [
@@ -173,7 +173,7 @@ export const initialServices: Service[] = [
     id: "service-3",
     title: "AI & Digital Literacy",
     slug: "ai-digital-literacy",
-    short_description: "Helping individuals and organisations understand, evaluate and use digital and AI tools with greater confidence, skill and responsibility.",
+    short_description: "Helping people understand and use digital and artificial intelligence tools effectively, critically and responsibly.",
     full_description: "Hands-on generative AI training for faculty, students, executives, and knowledge workers. We turn AI from an intimidating concept into an indispensable daily copilot for analysis, writing, curriculum design, and automation, while instilling ethical AI safeguards.",
     icon: "Cpu",
     features: [
@@ -192,7 +192,7 @@ export const initialServices: Service[] = [
     id: "service-4",
     title: "Capacity Building & Professional Development",
     slug: "capacity-building",
-    short_description: "Workshops, masterclasses, coaching and professional learning experiences designed around practical needs.",
+    short_description: "Creating practical learning experiences through training, masterclasses, workshops, coaching and professional development programmes.",
     full_description: "Facilitated seminars, campaigns and workshops for over 15,000 participants on academic, faith, corporate, and social platforms. We specialize in leadership, team-building, organizational management, digital mindsets, and career acceleration.",
     icon: "GraduationCap",
     features: [
@@ -211,7 +211,7 @@ export const initialServices: Service[] = [
     id: "service-5",
     title: "ICT & Media Solutions",
     slug: "ict-media",
-    short_description: "ICT, digital and multimedia support for individuals, libraries and organisations seeking to create, communicate and work more effectively.",
+    short_description: "Supporting individuals and organisations with technology, digital communication and multimedia solutions.",
     full_description: "Full multimedia capability powered through Sesitech Ventures. We deliver web development, digital branding, professional photography, documentary videography, digital printing, and high-impact digital marketing campaigns.",
     icon: "MonitorPlay",
     features: [

@@ -16,7 +16,7 @@ export const WhatWeDo: React.FC = () => {
     {
       id: "library-solutions",
       title: "Library & Information Solutions",
-      description: "Digital and information solutions that help libraries and information organisations improve access, services, visibility and reach.",
+      description: "Supporting libraries and information organisations with automation, digital services, information access, visibility, e-resources and related solutions.",
       ctaText: "Explore Library Solutions",
       link: "/solutions/library-information",
       icon: Library
@@ -24,7 +24,7 @@ export const WhatWeDo: React.FC = () => {
     {
       id: "research-support",
       title: "Research & Scholarly Support",
-      description: "Practical support for researchers around research writing, publication, scholarly communication, research visibility and the effective use of research tools.",
+      description: "Supporting researchers with research writing, publication, scholarly communication, research visibility and the effective use of digital research tools.",
       ctaText: "Explore Research Support",
       link: "/solutions/research",
       icon: BookMarked
@@ -32,7 +32,7 @@ export const WhatWeDo: React.FC = () => {
     {
       id: "ai-digital-literacy",
       title: "AI & Digital Literacy",
-      description: "Helping individuals and organisations understand, evaluate and use digital and AI tools with greater confidence, skill and responsibility.",
+      description: "Helping people understand and use digital and artificial intelligence tools effectively, critically and responsibly.",
       ctaText: "Explore AI & Digital Literacy",
       link: "/solutions/ai-digital-literacy",
       icon: Cpu
@@ -40,7 +40,7 @@ export const WhatWeDo: React.FC = () => {
     {
       id: "capacity-building",
       title: "Capacity Building & Professional Development",
-      description: "Workshops, masterclasses, coaching and professional learning experiences designed around practical needs.",
+      description: "Creating practical learning experiences through training, masterclasses, workshops, coaching and professional development programmes.",
       ctaText: "Explore Capacity Building",
       link: "/solutions/capacity-building",
       icon: GraduationCap
@@ -48,9 +48,9 @@ export const WhatWeDo: React.FC = () => {
     {
       id: "ict-media",
       title: "ICT & Media Solutions",
-      description: "ICT, digital and multimedia support for individuals, libraries and organisations seeking to create, communicate and work more effectively.",
+      description: "Supporting individuals and organisations with technology, digital communication and multimedia solutions.",
       ctaText: "Explore ICT & Media",
-      link: "/solutions",
+      link: "/solutions/ict-media",
       icon: MonitorPlay
     }
   ];
