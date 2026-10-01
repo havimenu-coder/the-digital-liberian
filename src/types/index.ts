@@ -112,6 +112,8 @@ export interface BlogPost {
   reading_time: string;
   seo_title?: string;
   seo_description?: string;
+  wp_post_id?: string | number;
+  original_link?: string;
 }
 
 export interface Event {

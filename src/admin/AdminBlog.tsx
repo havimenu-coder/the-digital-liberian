@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Calendar, Clock, Eye, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, Edit, Trash2, Save, X, Calendar, Clock, Eye, Globe, FileUp } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { BlogPost } from '../types';
 import { ImageUploadField } from './components/ImageUploadField';
@@ -103,14 +104,22 @@ export const AdminBlog: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to="/admin/blog-importer"
+            className="inline-flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-brand-blue border border-brand-blue/30 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shadow-xs"
+          >
+            <FileUp className="w-4 h-4" />
+            <span>WXR / XML Blog Importer</span>
+          </Link>
+
           <button
             type="button"
             onClick={() => setIsImportModalOpen(true)}
             className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shadow-xs"
           >
             <Globe className="w-4 h-4 text-brand-blue" />
-            <span>Import from WordPress</span>
+            <span>Import URL</span>
           </button>
 
           <button

@@ -234,6 +234,39 @@ export const dataStore = {
     saveLocal(STORAGE_KEYS.BLOG, list.filter(p => p.id !== id));
   },
 
+  saveBlogPostsBatch: async (
+    newPosts: BlogPost[],
+    overwriteDuplicates: boolean = false
+  ): Promise<{ added: number; updated: number; skipped: number }> => {
+    const list = loadLocal<BlogPost[]>(STORAGE_KEYS.BLOG, initialBlogPosts);
+    let added = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    for (const post of newPosts) {
+      const existingIndex = list.findIndex(p =>
+        (post.wp_post_id && p.wp_post_id && String(p.wp_post_id) === String(post.wp_post_id)) ||
+        (post.slug && p.slug.toLowerCase() === post.slug.toLowerCase()) ||
+        (post.original_link && p.original_link && p.original_link === post.original_link)
+      );
+
+      if (existingIndex >= 0) {
+        if (overwriteDuplicates) {
+          list[existingIndex] = { ...list[existingIndex], ...post, id: list[existingIndex].id };
+          updated++;
+        } else {
+          skipped++;
+        }
+      } else {
+        list.unshift(post);
+        added++;
+      }
+    }
+
+    saveLocal(STORAGE_KEYS.BLOG, list);
+    return { added, updated, skipped };
+  },
+
   // 8. Events
   getEvents: async (): Promise<Event[]> => {
     return loadLocal<Event[]>(STORAGE_KEYS.EVENTS, initialEvents);

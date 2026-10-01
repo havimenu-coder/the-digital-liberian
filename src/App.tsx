@@ -32,6 +32,7 @@ import { AdminHomepage } from './admin/AdminHomepage';
 import { AdminServices } from './admin/AdminServices';
 import { AdminResources } from './admin/AdminResources';
 import { AdminBlog } from './admin/AdminBlog';
+import { AdminBlogImporter } from './admin/AdminBlogImporter';
 import { AdminEvents } from './admin/AdminEvents';
 import { AdminInitiatives } from './admin/AdminInitiatives';
 import { AdminTeam } from './admin/AdminTeam';
@@ -67,6 +68,7 @@ export const App: React.FC = () => {
         <Route path="services" element={<AdminServices />} />
         <Route path="resources" element={<AdminResources />} />
         <Route path="blog" element={<AdminBlog />} />
+        <Route path="blog-importer" element={<AdminBlogImporter />} />
         <Route path="events" element={<AdminEvents />} />
         <Route path="initiatives" element={<AdminInitiatives />} />
         <Route path="team" element={<AdminTeam />} />

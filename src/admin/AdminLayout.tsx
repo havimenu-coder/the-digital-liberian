@@ -22,7 +22,8 @@ import {
   X,
   ExternalLink,
   ChevronRight,
-  Globe
+  Globe,
+  FileUp
 } from 'lucide-react';
 import { WordPressImportModal } from './components/WordPressImportModal';
 
@@ -55,6 +56,7 @@ export const AdminLayout: React.FC = () => {
     { label: 'Services / Solutions', path: '/admin/services', icon: Briefcase },
     { label: 'Resources & AI Tools', path: '/admin/resources', icon: BookOpen },
     { label: 'Blog Posts', path: '/admin/blog', icon: Newspaper },
+    { label: 'Blog Importer', path: '/admin/blog-importer', icon: FileUp },
     { label: 'Events & Tickets', path: '/admin/events', icon: Calendar },
     { label: 'Initiatives & LSA', path: '/admin/initiatives', icon: Award },
     { label: 'Team Members', path: '/admin/team', icon: Users },
