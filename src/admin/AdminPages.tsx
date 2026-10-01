@@ -21,12 +21,44 @@ import { dataStore } from '../lib/storage';
 import { Page, PageSection, SectionType } from '../types';
 import { ImageUploadField } from './components/ImageUploadField';
 import { YouTubeInputField } from './components/YouTubeInputField';
+import { WordPressImportModal } from './components/WordPressImportModal';
+import { WordPressImportedItem } from '../utils/wordpressImporter';
 
 export const AdminPages: React.FC = () => {
   const [pages, setPages] = useState<Page[]>([]);
   const [editingPage, setEditingPage] = useState<Page | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const location = useLocation();
+
+  const handleApplyImportedPage = (imported: WordPressImportedItem) => {
+    if (!editingPage) {
+      const newPage: Page = {
+        id: 'page-' + Date.now(),
+        title: imported.title,
+        slug: imported.slug,
+        published: true,
+        seo_title: `${imported.title} | The Digital Librarian`,
+        seo_description: imported.excerpt,
+        featured_image: imported.featured_image,
+        sections: imported.sections,
+        created_at: imported.date || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      setEditingPage(newPage);
+    } else {
+      setEditingPage({
+        ...editingPage,
+        title: imported.title || editingPage.title,
+        slug: imported.slug || editingPage.slug,
+        seo_title: `${imported.title} | The Digital Librarian`,
+        seo_description: imported.excerpt || editingPage.seo_description,
+        featured_image: imported.featured_image || editingPage.featured_image,
+        sections: imported.sections.length > 0 ? imported.sections : editingPage.sections,
+        updated_at: new Date().toISOString()
+      });
+    }
+  };
 
   useEffect(() => {
     loadPages();
@@ -244,6 +276,15 @@ export const AdminPages: React.FC = () => {
               }`}
             >
               {editingPage.published ? 'Published' : 'Draft'}
+            </button>
+
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-brand-blue border border-brand-blue/30 rounded-lg text-xs font-bold transition-colors shadow-xs"
+              title="Import page content from WordPress URL, HTML, or XML"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>Import WP</span>
             </button>
 
             <button
@@ -667,13 +708,23 @@ export const AdminPages: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleCreateNew}
-          className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Page</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shadow-xs"
+          >
+            <Globe className="w-4 h-4 text-brand-blue" />
+            <span>Import from WordPress</span>
+          </button>
+
+          <button
+            onClick={handleCreateNew}
+            className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Page</span>
+          </button>
+        </div>
       </div>
 
       {/* Pages Table */}
@@ -761,16 +812,33 @@ export const AdminPages: React.FC = () => {
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
               You can create completely new pages and landing sites with our drag-and-drop block builder without writing any code.
             </p>
-            <button
-              onClick={handleCreateNew}
-              className="inline-flex items-center gap-1.5 bg-brand-blue text-white px-4 py-2 rounded-lg text-xs font-bold"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create First Custom Page</span>
-            </button>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setIsImportModalOpen(true)}
+                className="inline-flex items-center gap-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold"
+              >
+                <Globe className="w-4 h-4 text-brand-blue" />
+                <span>Import from WordPress</span>
+              </button>
+              <button
+                onClick={handleCreateNew}
+                className="inline-flex items-center gap-1.5 bg-brand-blue text-white px-4 py-2 rounded-lg text-xs font-bold"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create First Custom Page</span>
+              </button>
+            </div>
           </div>
         )}
       </div>
+
+      {/* WordPress Import Modal */}
+      <WordPressImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onApplyToPage={handleApplyImportedPage}
+        defaultDestination="page"
+      />
     </div>
   );
 };

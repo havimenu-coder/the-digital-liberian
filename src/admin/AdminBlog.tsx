@@ -1,17 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Calendar, Clock, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Calendar, Clock, Eye, Globe } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { BlogPost } from '../types';
 import { ImageUploadField } from './components/ImageUploadField';
 import { YouTubeInputField } from './components/YouTubeInputField';
+import { WordPressImportModal } from './components/WordPressImportModal';
+import { WordPressImportedItem } from '../utils/wordpressImporter';
 
 export const AdminBlog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   useEffect(() => {
     loadPosts();
   }, []);
+
+  const handleApplyImportedBlog = (imported: WordPressImportedItem) => {
+    if (!editingPost) {
+      const newPost: BlogPost = {
+        id: 'post-' + Date.now(),
+        title: imported.title,
+        slug: imported.slug,
+        excerpt: imported.excerpt || 'Imported article from WordPress.',
+        content: imported.content,
+        featured_image: imported.featured_image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
+        video_url: '',
+        category: imported.categories?.[0] || 'General',
+        tags: imported.tags || ['WordPress', 'Imported'],
+        author_name: imported.author || 'Sylvester I. Ebhonu',
+        author_role: 'Founder & Lead Consultant',
+        author_avatar: '/images/sylvester-portrait.png',
+        published: true,
+        published_at: imported.date ? imported.date.split('T')[0] : new Date().toISOString().split('T')[0],
+        reading_time: '4 min read'
+      };
+      setEditingPost(newPost);
+    } else {
+      setEditingPost({
+        ...editingPost,
+        title: imported.title || editingPost.title,
+        slug: imported.slug || editingPost.slug,
+        excerpt: imported.excerpt || editingPost.excerpt,
+        content: imported.content || editingPost.content,
+        featured_image: imported.featured_image || editingPost.featured_image,
+        category: imported.categories?.[0] || editingPost.category,
+        author_name: imported.author || editingPost.author_name
+      });
+    }
+  };
 
   const loadPosts = async () => {
     const list = await dataStore.getBlogPosts();
@@ -66,19 +103,41 @@ export const AdminBlog: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleCreateNew}
-          className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Write New Post</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsImportModalOpen(true)}
+            className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shadow-xs"
+          >
+            <Globe className="w-4 h-4 text-brand-blue" />
+            <span>Import from WordPress</span>
+          </button>
+
+          <button
+            onClick={handleCreateNew}
+            className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Write New Post</span>
+          </button>
+        </div>
       </div>
 
       {editingPost && (
         <form onSubmit={handleSave} className="bg-white p-6 rounded-2xl border-2 border-brand-dark shadow-xl space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-            <h2 className="font-serif text-xl font-bold text-brand-dark">Article Editor</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="font-serif text-xl font-bold text-brand-dark">Article Editor</h2>
+              <button
+                type="button"
+                onClick={() => setIsImportModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-brand-blue border border-brand-blue/30 rounded-lg text-xs font-bold transition-colors shadow-xs"
+                title="Import article content from WordPress"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>Import WP</span>
+              </button>
+            </div>
             <button type="button" onClick={() => setEditingPost(null)} className="text-slate-400 hover:text-slate-700">
               <X className="w-5 h-5" />
             </button>
@@ -261,6 +320,14 @@ export const AdminBlog: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* WordPress Import Modal */}
+      <WordPressImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onApplyToBlog={handleApplyImportedBlog}
+        defaultDestination="blog"
+      />
     </div>
   );
 };

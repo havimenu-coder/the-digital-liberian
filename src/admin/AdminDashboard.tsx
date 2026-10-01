@@ -13,12 +13,15 @@ import {
   ExternalLink,
   ArrowRight,
   TrendingUp,
-  Clock
+  Clock,
+  Globe
 } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { FormSubmission } from '../types';
+import { WordPressImportModal } from './components/WordPressImportModal';
 
 export const AdminDashboard: React.FC = () => {
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [stats, setStats] = useState({
     totalPages: 0,
     publishedPages: 0,
@@ -85,6 +88,13 @@ export const AdminDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-xs"
+          >
+            <Globe className="w-4 h-4 text-brand-blue" />
+            <span>Import from WordPress</span>
+          </button>
           <Link
             to="/admin/pages?action=new"
             className="inline-flex items-center gap-1.5 bg-brand-blue hover:bg-brand-blue-hover text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm"
@@ -192,6 +202,13 @@ export const AdminDashboard: React.FC = () => {
             Quick Actions
           </h2>
           <div className="space-y-2 text-xs">
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="w-full text-left p-3 rounded-lg border border-brand-blue/40 bg-blue-50/50 hover:bg-blue-100 font-semibold text-brand-blue transition-colors flex items-center justify-between"
+            >
+              <span>🌐 Import from WordPress (URL/XML)</span>
+              <span className="text-[10px] bg-brand-blue text-white px-2 py-0.5 rounded font-bold">Fast</span>
+            </button>
             <Link
               to="/admin/homepage"
               className="block p-3 rounded-lg border border-slate-200 hover:border-brand-blue hover:bg-slate-50 font-semibold text-slate-700 transition-colors"
@@ -232,6 +249,12 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
       </div>
+
+      {/* WordPress Import Modal */}
+      <WordPressImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+      />
     </div>
   );
 };

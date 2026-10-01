@@ -21,14 +21,17 @@ import {
   LogOut,
   X,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from 'lucide-react';
+import { WordPressImportModal } from './components/WordPressImportModal';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [adminUser, setAdminUser] = useState<string | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   useEffect(() => {
     const session = localStorage.getItem('thedl_admin_session');
@@ -158,10 +161,47 @@ export const AdminLayout: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-slate-50">
+        {/* Top Action Header across all admin views */}
+        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400">Current View:</span>
+            <span className="text-xs font-bold text-brand-dark px-2.5 py-1 bg-slate-100 rounded-md">
+              {navItems.find(item => item.path === location.pathname)?.label || 'Control Center'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-700 to-brand-blue hover:from-blue-800 hover:to-brand-blue-hover text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs hover:shadow active:scale-95"
+              title="Import pages, articles, or full XML exports from WordPress"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>Import from WordPress</span>
+            </button>
+
+            <Link
+              to="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-brand-blue border border-slate-200 hover:border-brand-blue px-3 py-1.5 rounded-lg transition-colors"
+            >
+              <span>View Site</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </header>
+
         <div className="p-6 lg:p-10 max-w-7xl w-full mx-auto">
           <Outlet />
         </div>
       </main>
+
+      {/* Global WordPress Import Modal accessible from any admin page */}
+      <WordPressImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+      />
 
     </div>
   );

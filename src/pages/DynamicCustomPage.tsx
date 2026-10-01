@@ -95,7 +95,8 @@ function renderSection(section: PageSection) {
       );
 
     case 'text_block':
-    case 'rich_text':
+    case 'rich_text': {
+      const isHtml = Boolean(data.html || (data.content && /<[a-z][\s\S]*>/i.test(data.content)));
       return (
         <section key={id} className="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {data.heading && (
@@ -103,15 +104,23 @@ function renderSection(section: PageSection) {
               {data.heading}
             </h2>
           )}
-          <div className="text-slate-700 leading-relaxed text-base space-y-4">
-            {data.content ? (
-              data.content.split('\n\n').map((p: string, i: number) => <p key={i}>{p}</p>)
-            ) : (
-              <p>{data.text}</p>
-            )}
-          </div>
+          {isHtml ? (
+            <div
+              className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-base space-y-4 [&>p]:mb-4 [&>h2]:font-serif [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-brand-dark [&>h2]:mt-6 [&>h3]:font-serif [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-brand-dark [&>h3]:mt-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>blockquote]:border-l-4 [&>blockquote]:border-brand-blue [&>blockquote]:pl-4 [&>blockquote]:italic [&>img]:rounded-xl [&>img]:shadow-md [&>img]:my-6 [&>a]:text-brand-blue [&>a]:underline"
+              dangerouslySetInnerHTML={{ __html: data.html || data.content }}
+            />
+          ) : (
+            <div className="text-slate-700 leading-relaxed text-base space-y-4">
+              {data.content ? (
+                data.content.split('\n\n').map((p: string, i: number) => <p key={i}>{p}</p>)
+              ) : (
+                <p>{data.text}</p>
+              )}
+            </div>
+          )}
         </section>
       );
+    }
 
     case 'text_image':
       return (
