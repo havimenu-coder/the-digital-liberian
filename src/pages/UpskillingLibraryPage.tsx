@@ -3,6 +3,7 @@ import { Book, Search, Filter, ExternalLink, Download, Play, Sparkles, BookOpen,
 import { dataStore } from '../lib/storage';
 import { Resource, AITool } from '../types';
 import { FreeGiftModal } from '../components/public/FreeGiftModal';
+import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
 
 export const UpskillingLibraryPage: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -179,16 +180,22 @@ export const UpskillingLibraryPage: React.FC = () => {
                     <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
                       {course.description}
                     </p>
+
+                    {course.external_url && (
+                      <div className="mt-4">
+                        <YouTubeEmbed url={course.external_url} title={course.title} />
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-5 mt-4 border-t border-slate-200 flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500">{course.price || 'Free'}</span>
+                    <span className="text-xs font-bold text-slate-500">{course.price || 'Free Access'}</span>
                     {course.external_url && (
                       <a
                         href={course.external_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 bg-brand-blue text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-brand-blue-hover transition-colors"
+                        className="inline-flex items-center gap-1.5 text-brand-blue hover:underline text-xs font-semibold"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
                         <span>Watch on YouTube</span>

@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, ArrowRight, BookOpen, GraduationCap, Video, Presentation, Library, Sparkles, X } from 'lucide-react';
+import { dataStore } from '../../lib/storage';
+import { HomepageData } from '../../types';
+import { getYouTubeEmbedUrl } from '../../utils/youtube';
 
 export const UpskillingSection: React.FC = () => {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [homeData, setHomeData] = useState<HomepageData | null>(null);
+
+  useEffect(() => {
+    dataStore.getHomepageData().then(setHomeData);
+  }, []);
+
+  const featured = homeData?.featured_learning;
 
   const categories = [
     { label: "Blog", href: "/blog", icon: BookOpen },
@@ -66,8 +76,8 @@ export const UpskillingSection: React.FC = () => {
             <div className="lg:col-span-6 relative aspect-video bg-blue-950 flex items-center justify-center overflow-hidden group cursor-pointer"
                  onClick={() => setIsVideoModalOpen(true)}>
               <img
-                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
-                alt="The Digital You Masterclass Preview"
+                src={featured?.thumbnail_url || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"}
+                alt={featured?.title || "The Digital You Masterclass Preview"}
                 className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/30 to-transparent" />
@@ -86,23 +96,23 @@ export const UpskillingSection: React.FC = () => {
             {/* Video Description & Info */}
             <div className="lg:col-span-6 p-6 sm:p-10 space-y-4">
               <div className="inline-flex items-center gap-2 bg-brand-blue/20 text-brand-blue border border-brand-blue/40 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                Featured Course / Masterclass
+                {featured?.subtitle || "Featured Course / Masterclass"}
               </div>
 
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug">
-                The Digital You: Personal Branding, AI & Digital Presence Masterclass
+                {featured?.title || "The Digital You: Personal Branding, AI & Digital Presence Masterclass"}
               </h3>
 
               <p className="text-sm text-slate-300 leading-relaxed font-normal">
-                A high-impact practical masterclass designed by Sylvester Ebhonu for educators, librarians, researchers and knowledge workers on building a credible digital identity, deploying AI tools for productivity, and positioning for global opportunities.
+                {featured?.description || "A high-impact practical masterclass designed by Sylvester Ebhonu for educators, librarians, researchers and knowledge workers on building a credible digital identity, deploying AI tools for productivity, and positioning for global opportunities."}
               </p>
 
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <Link
-                  to="/upskilling-library"
+                  to={featured?.cta_url || "/upskilling-library"}
                   className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-6 py-2.5 rounded-md text-sm font-semibold transition-all shadow-md active:scale-95"
                 >
-                  <span>Start Learning</span>
+                  <span>{featured?.cta_text || "Start Learning"}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
 
@@ -126,7 +136,9 @@ export const UpskillingSection: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
           <div className="relative w-full max-w-4xl bg-brand-dark rounded-2xl overflow-hidden shadow-2xl border border-blue-900">
             <div className="flex items-center justify-between p-4 border-b border-blue-900/60 bg-brand-dark">
-              <span className="font-serif font-bold text-white text-base">The Digital You Masterclass Trailer</span>
+              <span className="font-serif font-bold text-white text-base">
+                {featured?.title || "The Digital You Masterclass Trailer"}
+              </span>
               <button
                 onClick={() => setIsVideoModalOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-blue-900/50 transition-colors"
@@ -137,8 +149,8 @@ export const UpskillingSection: React.FC = () => {
             <div className="relative aspect-video w-full bg-black">
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/CoRkktaf1DI?autoplay=1"
-                title="The Digital Librarian Masterclass"
+                src={featured?.video_url ? getYouTubeEmbedUrl(featured.video_url, { autoplay: true }) : "https://www.youtube-nocookie.com/embed/CoRkktaf1DI?autoplay=1"}
+                title={featured?.title || "The Digital Librarian Masterclass"}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />

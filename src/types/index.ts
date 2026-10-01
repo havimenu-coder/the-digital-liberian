@@ -101,6 +101,7 @@ export interface BlogPost {
   excerpt: string;
   content: string;
   featured_image: string;
+  video_url?: string;
   category: string;
   tags: string[];
   author_name: string;
@@ -125,6 +126,7 @@ export interface Event {
   location: string;
   is_virtual: boolean;
   flyer_url: string;
+  video_url?: string;
   description: string;
   expectations: string[];
   investment_tiers: {
@@ -258,7 +260,9 @@ export type SectionType =
   | 'faq'
   | 'contact_form'
   | 'cta_banner'
-  | 'quote';
+  | 'quote'
+  | 'video_embed'
+  | 'youtube_video';
 
 export interface PageSection {
   id: string;

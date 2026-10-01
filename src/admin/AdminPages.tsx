@@ -20,6 +20,7 @@ import {
 import { dataStore } from '../lib/storage';
 import { Page, PageSection, SectionType } from '../types';
 import { ImageUploadField } from './components/ImageUploadField';
+import { YouTubeInputField } from './components/YouTubeInputField';
 
 export const AdminPages: React.FC = () => {
   const [pages, setPages] = useState<Page[]>([]);
@@ -192,6 +193,15 @@ export const AdminPages: React.FC = () => {
         return { heading: 'Key Highlights', cards: [{ title: 'Pillar One', description: 'Focus on technology.' }, { title: 'Pillar Two', description: 'Focus on capacity.' }, { title: 'Pillar Three', description: 'Focus on ethics.' }] };
       case 'quote':
         return { quoteText: 'Technology without purpose is meaningless. We build for impact.', quoteAuthor: 'Sylvester I. Ebhonu' };
+      case 'youtube_video':
+      case 'video_embed':
+        return {
+          heading: 'Featured Masterclass & Video Presentation',
+          subheading: 'Watch & Learn',
+          videoUrl: 'https://www.youtube.com/watch?v=CoRkktaf1DI',
+          description: 'Watch this in-depth walkthrough on digital skills, AI tools, and information literacy.',
+          caption: 'Presented by The Digital Librarian'
+        };
       default:
         return {};
     }
@@ -354,6 +364,13 @@ export const AdminPages: React.FC = () => {
                 className="px-2.5 py-1 bg-white border border-slate-300 hover:border-brand-blue rounded text-xs font-medium"
               >
                 + Dark CTA
+              </button>
+              <button
+                onClick={() => handleAddSection('youtube_video')}
+                className="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:border-red-300 rounded text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
+              >
+                <span className="w-3.5 h-3.5 rounded-full bg-red-600 text-white flex items-center justify-center text-[8px]">▶</span>
+                <span>+ YouTube Video</span>
               </button>
             </div>
           </div>
@@ -546,6 +563,79 @@ export const AdminPages: React.FC = () => {
                         onChange={e => handleUpdateSectionData(sec.id, 'quoteAuthor', e.target.value)}
                         className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
                       />
+                    </div>
+                  </div>
+                )}
+
+                {(sec.type === 'youtube_video' || sec.type === 'video_embed') && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Video Section Heading</label>
+                        <input
+                          type="text"
+                          value={sec.data.heading || ''}
+                          onChange={e => handleUpdateSectionData(sec.id, 'heading', e.target.value)}
+                          placeholder="e.g. Masterclass Walkthrough & Demo"
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Subheading / Badge</label>
+                        <input
+                          type="text"
+                          value={sec.data.subheading || ''}
+                          onChange={e => handleUpdateSectionData(sec.id, 'subheading', e.target.value)}
+                          placeholder="e.g. Featured Video Presentation"
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <YouTubeInputField
+                      label="YouTube Video Link (Paste URL)"
+                      value={sec.data.videoUrl || sec.data.url || ''}
+                      onChange={url => handleUpdateSectionData(sec.id, 'videoUrl', url)}
+                      placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                      helperText="Paste any standard YouTube link, shortlink (youtu.be), or YouTube Shorts URL."
+                      required
+                    />
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">Description / Key Highlights</label>
+                      <textarea
+                        rows={3}
+                        value={sec.data.description || sec.data.content || ''}
+                        onChange={e => handleUpdateSectionData(sec.id, 'description', e.target.value)}
+                        placeholder="Provide context or learning objectives for viewers watching this video."
+                        className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Video Caption / Credit</label>
+                        <input
+                          type="text"
+                          value={sec.data.caption || ''}
+                          onChange={e => handleUpdateSectionData(sec.id, 'caption', e.target.value)}
+                          placeholder="e.g. Presented by Sylvester I. Ebhonu"
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Max Player Width</label>
+                        <select
+                          value={sec.data.maxWidth || 'max-w-4xl'}
+                          onChange={e => handleUpdateSectionData(sec.id, 'maxWidth', e.target.value)}
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded outline-none"
+                        >
+                          <option value="max-w-3xl">Medium (max-w-3xl)</option>
+                          <option value="max-w-4xl">Standard Wide (max-w-4xl)</option>
+                          <option value="max-w-5xl">Extra Wide (max-w-5xl)</option>
+                          <option value="max-w-full">Full Width</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 )}

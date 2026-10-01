@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, Save, X, BookOpen, Cpu, ExternalLink } from 'lucide
 import { dataStore } from '../lib/storage';
 import { Resource, AITool } from '../types';
 import { ImageUploadField } from './components/ImageUploadField';
+import { YouTubeInputField } from './components/YouTubeInputField';
 
 export const AdminResources: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'resources' | 'ai_tools'>('resources');
@@ -218,14 +219,13 @@ export const AdminResources: React.FC = () => {
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
               />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">External Video / Watch URL</label>
-              <input
-                type="text"
+            <div className="sm:col-span-2">
+              <YouTubeInputField
+                label="Resource Video / YouTube Masterclass URL"
                 value={editingResource.external_url || ''}
-                onChange={e => setEditingResource({ ...editingResource, external_url: e.target.value })}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
-                placeholder="https://youtube.com/..."
+                onChange={url => setEditingResource({ ...editingResource, external_url: url })}
+                placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                helperText="Paste the YouTube video link for this tutorial, presentation, or webinar to embed."
               />
             </div>
             <div className="sm:col-span-2">

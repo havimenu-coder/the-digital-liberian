@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, Share2, Twitter, Linkedin, MessageCircle, User } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { BlogPost } from '../types';
+import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
+import { getYouTubeVideoId } from '../utils/youtube';
 
 export const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -79,9 +81,39 @@ export const BlogPostPage: React.FC = () => {
           {post.excerpt}
         </div>
 
+        {/* Featured Video Player or Hero Image */}
+        {post.video_url ? (
+          <div className="mb-12">
+            <YouTubeEmbed
+              url={post.video_url}
+              title={post.title}
+              caption={`Featured video for: ${post.title}`}
+            />
+          </div>
+        ) : post.featured_image ? (
+          <div className="mb-12 rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+            <img
+              src={post.featured_image}
+              alt={post.title}
+              className="w-full h-auto max-h-[500px] object-cover"
+            />
+          </div>
+        ) : null}
+
         {/* Article Body Content */}
         <div className="prose prose-lg max-w-none text-slate-800 space-y-6 text-base leading-relaxed">
           {post.content.split('\n\n').map((para, i) => {
+            const trimmed = para.trim();
+
+            // Detect standalone YouTube link in paragraph
+            if (getYouTubeVideoId(trimmed)) {
+              return (
+                <div key={i} className="my-8">
+                  <YouTubeEmbed url={trimmed} />
+                </div>
+              );
+            }
+
             if (para.startsWith('## ')) {
               return <h2 key={i} className="font-serif text-2xl sm:text-3xl font-bold text-brand-dark pt-4">{para.replace('## ', '')}</h2>;
             }

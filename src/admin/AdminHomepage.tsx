@@ -3,6 +3,7 @@ import { Save, Sparkles, Check, Image as ImageIcon } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { HomepageData } from '../types';
 import { ImageUploadField } from './components/ImageUploadField';
+import { YouTubeInputField } from './components/YouTubeInputField';
 
 export const AdminHomepage: React.FC = () => {
   const [data, setData] = useState<HomepageData | null>(null);
@@ -308,7 +309,75 @@ export const AdminHomepage: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. FINAL CALL TO ACTION */}
+      {/* 3. FEATURED LEARNING & VIDEO SECTION */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 className="font-serif text-xl font-bold text-brand-dark border-b border-slate-100 pb-2">
+          Featured Learning & Video Masterclass
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Section Title</label>
+            <input
+              type="text"
+              value={data.featured_learning?.title || ''}
+              onChange={e => setData({
+                ...data,
+                featured_learning: { ...data.featured_learning, title: e.target.value }
+              })}
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Subtitle / Badge</label>
+            <input
+              type="text"
+              value={data.featured_learning?.subtitle || ''}
+              onChange={e => setData({
+                ...data,
+                featured_learning: { ...data.featured_learning, subtitle: e.target.value }
+              })}
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
+            <textarea
+              rows={2}
+              value={data.featured_learning?.description || ''}
+              onChange={e => setData({
+                ...data,
+                featured_learning: { ...data.featured_learning, description: e.target.value }
+              })}
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <YouTubeInputField
+              label="Featured Masterclass YouTube Video URL"
+              value={data.featured_learning?.video_url || ''}
+              onChange={url => setData({
+                ...data,
+                featured_learning: { ...data.featured_learning, video_url: url }
+              })}
+              placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+              helperText="Paste your promotional or educational YouTube video to display in the featured learning block."
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <ImageUploadField
+              label="Video Cover / Thumbnail Image (Fallback Poster)"
+              value={data.featured_learning?.thumbnail_url || ''}
+              onChange={url => setData({
+                ...data,
+                featured_learning: { ...data.featured_learning, thumbnail_url: url }
+              })}
+              placeholder="Upload cover image or paste URL"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 4. FINAL CALL TO ACTION */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <h2 className="font-serif text-xl font-bold text-brand-dark border-b border-slate-100 pb-2">
           Bottom Call to Action Banner

@@ -7,6 +7,7 @@ import { StatsSection } from '../components/public/StatsSection';
 import { TestimonialsSection } from '../components/public/TestimonialsSection';
 import { FinalCTA } from '../components/public/FinalCTA';
 import { ArrowRight } from 'lucide-react';
+import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
 
 export const DynamicCustomPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -177,6 +178,38 @@ function renderSection(section: PageSection) {
               — {data.quoteAuthor}
             </div>
           )}
+        </section>
+      );
+
+    case 'youtube_video':
+    case 'video_embed':
+      return (
+        <section key={id} className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`${data.maxWidth || 'max-w-4xl'} mx-auto space-y-6 text-center`}>
+            {data.subheading && (
+              <span className="text-xs uppercase tracking-widest text-brand-blue font-bold">
+                {data.subheading}
+              </span>
+            )}
+            {data.heading && (
+              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-brand-dark">
+                {data.heading}
+              </h2>
+            )}
+            {data.description && (
+              <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                {data.description}
+              </p>
+            )}
+
+            <div className="pt-2 text-left">
+              <YouTubeEmbed
+                url={data.videoUrl || data.url}
+                title={data.heading || 'Video Presentation'}
+                caption={data.caption}
+              />
+            </div>
+          </div>
         </section>
       );
 

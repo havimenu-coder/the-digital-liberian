@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, Save, X, Calendar, Clock, Eye } from 'lucide-react'
 import { dataStore } from '../lib/storage';
 import { BlogPost } from '../types';
 import { ImageUploadField } from './components/ImageUploadField';
+import { YouTubeInputField } from './components/YouTubeInputField';
 
 export const AdminBlog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -25,6 +26,7 @@ export const AdminBlog: React.FC = () => {
       excerpt: 'Short summary of the article for blog feeds and preview cards.',
       content: '## Main Section\n\nWrite your article content here. Support headings and paragraphs.',
       featured_image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
+      video_url: '',
       category: 'Digital Literacy',
       tags: ['AI', 'Research', 'Education'],
       author_name: 'Sylvester I. Ebhonu',
@@ -145,6 +147,16 @@ export const AdminBlog: React.FC = () => {
                 onChange={url => setEditingPost({ ...editingPost, featured_image: url })}
                 placeholder="Upload an image, browse media, or paste URL"
                 helperText="Upload from your computer or pick from the media library to use as the hero banner."
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <YouTubeInputField
+                label="Featured YouTube Video (Optional)"
+                value={editingPost.video_url || ''}
+                onChange={url => setEditingPost({ ...editingPost, video_url: url })}
+                placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                helperText="Paste a YouTube video URL to embed a responsive, playable video player directly into this article."
               />
             </div>
 

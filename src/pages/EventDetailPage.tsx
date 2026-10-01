@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, CheckCircle2, ShieldCheck, ArrowRight, CreditCard, ArrowLeft } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Event } from '../types';
+import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
 
 export const EventDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -130,6 +131,16 @@ export const EventDetailPage: React.FC = () => {
           
           {/* Left Column: Event Overview & Bank Details */}
           <div className="lg:col-span-6 space-y-8">
+            {event.video_url && (
+              <div className="space-y-2">
+                <YouTubeEmbed
+                  url={event.video_url}
+                  title={event.title}
+                  caption="Event Preview & Trailer"
+                />
+              </div>
+            )}
+
             <div>
               <h2 className="font-serif text-2xl font-bold text-brand-dark mb-4">
                 About this Masterclass

@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, Save, X, Calendar, Clock, MapPin, Eye } from 'lucid
 import { dataStore } from '../lib/storage';
 import { Event } from '../types';
 import { ImageUploadField } from './components/ImageUploadField';
+import { YouTubeInputField } from './components/YouTubeInputField';
 
 export const AdminEvents: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -30,6 +31,7 @@ export const AdminEvents: React.FC = () => {
       location: 'Virtual / Zoom & WhatsApp Live Stream',
       is_virtual: true,
       flyer_url: '/images/event-flyer.jpg',
+      video_url: '',
       description: 'Comprehensive overview of event schedule, speakers, and learning objectives.',
       expectations: [
         'To improve work/research performance and productivity',
@@ -184,6 +186,16 @@ export const AdminEvents: React.FC = () => {
                 onChange={url => setEditingEvent({ ...editingEvent, flyer_url: url })}
                 placeholder="Upload event flyer, select from media, or paste image URL"
                 helperText="Upload the promotional flyer or poster for this masterclass or workshop."
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <YouTubeInputField
+                label="Event Promotional / Teaser Video (YouTube URL)"
+                value={editingEvent.video_url || ''}
+                onChange={url => setEditingEvent({ ...editingEvent, video_url: url })}
+                placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                helperText="Paste a YouTube teaser video, recorded trailer, or previous session highlight."
               />
             </div>
 
