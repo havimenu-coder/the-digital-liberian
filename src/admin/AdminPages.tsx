@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { 
   Plus, 
   Trash2, 
@@ -15,7 +15,8 @@ import {
   ExternalLink,
   Layers,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  FileUp
 } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Page, PageSection, SectionType } from '../types';
@@ -278,12 +279,21 @@ export const AdminPages: React.FC = () => {
               {editingPage.published ? 'Published' : 'Draft'}
             </button>
 
+            <Link
+              to="/admin/page-importer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-brand-blue border border-brand-blue/30 rounded-lg text-xs font-bold transition-colors shadow-xs"
+              title="Batch import pages directly from WordPress XML (WXR) file or live URL"
+            >
+              <FileUp className="w-3.5 h-3.5" />
+              <span>WXR / XML Importer</span>
+            </Link>
+
             <button
               onClick={() => setIsImportModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-brand-blue border border-brand-blue/30 rounded-lg text-xs font-bold transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-colors shadow-xs"
               title="Import page content from WordPress URL, HTML, or XML"
             >
-              <Globe className="w-3.5 h-3.5" />
+              <Globe className="w-3.5 h-3.5 text-brand-blue" />
               <span>Import WP</span>
             </button>
 
@@ -708,13 +718,22 @@ export const AdminPages: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to="/admin/page-importer"
+            className="inline-flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-brand-blue border border-brand-blue/30 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shadow-xs"
+            title="Import all or selected pages directly from WordPress XML (WXR) export or live URL"
+          >
+            <FileUp className="w-4 h-4 text-brand-blue" />
+            <span>WordPress XML Importer</span>
+          </Link>
+
           <button
             onClick={() => setIsImportModalOpen(true)}
             className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-lg text-xs font-bold transition-all shadow-xs"
           >
             <Globe className="w-4 h-4 text-brand-blue" />
-            <span>Import from WordPress</span>
+            <span>Quick URL Import</span>
           </button>
 
           <button

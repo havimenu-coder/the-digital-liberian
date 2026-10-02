@@ -1,4 +1,37 @@
-import { BlogPost } from '../types';
+import { BlogPost, Page, PageSection } from '../types';
+import { convertWordPressContentToSections } from './wordpressImporter';
+
+export interface ParsedWxrPage {
+  wp_id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  date: string;
+  status: string;
+  post_type: string;
+  author: string;
+  original_link: string;
+  featured_image: string;
+  has_featured_image: boolean;
+  word_count: number;
+  sections: PageSection[];
+  is_duplicate?: boolean;
+  duplicate_reason?: string;
+  matched_existing_id?: string;
+}
+
+export interface WxrPageParseResult {
+  isValidWxr: boolean;
+  siteTitle: string;
+  siteUrl: string;
+  wxrVersion: string;
+  totalItems: number;
+  pagesCount: number;
+  postsCount: number;
+  attachmentsCount: number;
+  pages: ParsedWxrPage[];
+}
 
 export interface ParsedWxrPost {
   wp_id: string;
@@ -451,6 +484,221 @@ export function convertWxrPostToBlogPost(parsed: ParsedWxrPost): BlogPost {
     seo_title: `${parsed.title} | The Digital Librarian`,
     seo_description: parsed.excerpt,
     wp_post_id: parsed.wp_id,
+    original_link: parsed.original_link
+  };
+}
+
+/**
+ * Parse WordPress WXR XML Export file specifically for Pages (wp:post_type = 'page')
+ */
+export function parseWordPressWxrPages(
+  xmlString: string,
+  existingPages: Page[] = []
+): WxrPageParseResult {
+  const validation = validateWxrString(xmlString);
+  if (!validation.isValid) {
+    throw new Error(validation.error);
+  }
+
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+
+  const parserError = xmlDoc.querySelector('parsererror');
+  if (parserError) {
+    throw new Error('XML parsing syntax error: ' + (parserError.textContent?.slice(0, 150) || 'Malformed XML'));
+  }
+
+  const channel = xmlDoc.querySelector('channel');
+  const siteTitle = channel ? getXmlNodeValue(channel, 'title') : 'WordPress Site';
+  const siteUrl = channel ? getXmlNodeValue(channel, 'link') : '';
+  const wxrVersion = channel ? getXmlNodeValue(channel, 'wp:wxr_version') : '1.2';
+
+  const attachmentMap: Record<string, string> = {};
+  const items = Array.from(xmlDoc.querySelectorAll('item'));
+
+  let pagesCount = 0;
+  let attachmentsCount = 0;
+  let postsCount = 0;
+
+  // Pass 1: Attachments
+  items.forEach(item => {
+    const postType = getXmlNodeValue(item, 'wp:post_type') || getXmlNodeValue(item, 'post_type');
+    if (postType === 'attachment') {
+      attachmentsCount++;
+      const id = getXmlNodeValue(item, 'wp:post_id') || getXmlNodeValue(item, 'post_id');
+      const url = getXmlNodeValue(item, 'wp:attachment_url') || getXmlNodeValue(item, 'attachment_url') || getXmlNodeValue(item, 'guid');
+      if (id && url) attachmentMap[id] = url;
+    } else if (postType === 'post') {
+      postsCount++;
+    } else if (postType === 'page') {
+      pagesCount++;
+    }
+  });
+
+  // Pass 2: Pages
+  const pages: ParsedWxrPage[] = [];
+
+  items.forEach((item, index) => {
+    const postType = getXmlNodeValue(item, 'wp:post_type') || getXmlNodeValue(item, 'post_type');
+    if (postType !== 'page') return;
+
+    const wp_id = getXmlNodeValue(item, 'wp:post_id') || getXmlNodeValue(item, 'post_id') || `page-${index}`;
+    const rawTitle = getXmlNodeValue(item, 'title');
+    const title = decodeEntities(rawTitle || 'Untitled Page');
+
+    let slug = getXmlNodeValue(item, 'wp:post_name') || getXmlNodeValue(item, 'post_name');
+    if (!slug) {
+      slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+    if (!slug) slug = `page-${wp_id}`;
+
+    const rawDate = getXmlNodeValue(item, 'wp:post_date') || getXmlNodeValue(item, 'post_date') || getXmlNodeValue(item, 'pubDate');
+    let dateStr = new Date().toISOString().split('T')[0];
+    if (rawDate) {
+      try {
+        const parsedDate = new Date(rawDate);
+        if (!isNaN(parsedDate.getTime())) {
+          dateStr = parsedDate.toISOString().split('T')[0];
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    const status = getXmlNodeValue(item, 'wp:status') || getXmlNodeValue(item, 'status') || 'publish';
+    const original_link = getXmlNodeValue(item, 'link') || getXmlNodeValue(item, 'guid');
+    const author = getXmlNodeValue(item, 'dc:creator') || getXmlNodeValue(item, 'creator') || 'Sylvester I. Ebhonu';
+
+    let thumbnailId: string | null = null;
+    let elementorDataStr: string | null = null;
+
+    const postmetas = Array.from(item.querySelectorAll('wp\\:postmeta, postmeta'));
+    postmetas.forEach(meta => {
+      const key = getXmlNodeValue(meta, 'wp:meta_key') || getXmlNodeValue(meta, 'meta_key');
+      const value = getXmlNodeValue(meta, 'wp:meta_value') || getXmlNodeValue(meta, 'meta_value');
+
+      if (key === '_thumbnail_id') thumbnailId = value;
+      else if (key === '_elementor_data') elementorDataStr = value;
+    });
+
+    let rawContent = getXmlNodeValue(item, 'content:encoded') || getXmlNodeValue(item, 'encoded') || '';
+
+    if ((!rawContent || rawContent.length < 50) && elementorDataStr) {
+      const recovered = recoverElementorContent(elementorDataStr);
+      if (recovered && recovered.length > rawContent.length) {
+        rawContent = recovered;
+      }
+    }
+
+    const sanitizedContent = sanitizeArticleContent(rawContent);
+
+    let excerpt = decodeEntities(getXmlNodeValue(item, 'excerpt:encoded') || '');
+    if (!excerpt && sanitizedContent) {
+      const textOnly = sanitizedContent.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+      excerpt = textOnly.length > 200 ? textOnly.slice(0, 200) + '...' : textOnly;
+    }
+
+    let featured_image = '';
+    let has_featured_image = false;
+
+    if (thumbnailId && attachmentMap[thumbnailId]) {
+      featured_image = attachmentMap[thumbnailId];
+      has_featured_image = true;
+    } else {
+      const firstImg = extractFirstImageFromHtml(sanitizedContent);
+      if (firstImg) {
+        featured_image = firstImg;
+        has_featured_image = true;
+      } else {
+        featured_image = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80';
+      }
+    }
+
+    const words = sanitizedContent.replace(/<[^>]*>?/gm, ' ').trim().split(/\s+/).filter(Boolean).length;
+
+    // Convert into modular site PageSection[]
+    const sections = convertWordPressContentToSections(title, excerpt, sanitizedContent, featured_image);
+
+    // Duplicate detection against existing site custom pages
+    let is_duplicate = false;
+    let duplicate_reason: string | undefined;
+    let matched_existing_id: string | undefined;
+
+    const matchedPage = existingPages.find(existing => {
+      if (existing.wp_page_id && String(existing.wp_page_id) === String(wp_id)) {
+        duplicate_reason = `Matched WordPress Page ID (#${wp_id})`;
+        return true;
+      }
+      if (existing.slug && existing.slug.toLowerCase() === slug.toLowerCase()) {
+        duplicate_reason = `Matched URL slug (/${slug})`;
+        return true;
+      }
+      if (original_link && existing.original_link && existing.original_link === original_link) {
+        duplicate_reason = 'Matched original WordPress page URL';
+        return true;
+      }
+      if (existing.title && existing.title.trim().toLowerCase() === title.trim().toLowerCase()) {
+        duplicate_reason = 'Matched exact page title';
+        return true;
+      }
+      return false;
+    });
+
+    if (matchedPage) {
+      is_duplicate = true;
+      matched_existing_id = matchedPage.id;
+    }
+
+    pages.push({
+      wp_id,
+      title,
+      slug,
+      content: sanitizedContent,
+      excerpt,
+      date: dateStr,
+      status,
+      post_type: postType,
+      author,
+      original_link,
+      featured_image,
+      has_featured_image,
+      word_count: words,
+      sections,
+      is_duplicate,
+      duplicate_reason,
+      matched_existing_id
+    });
+  });
+
+  return {
+    isValidWxr: true,
+    siteTitle,
+    siteUrl,
+    wxrVersion,
+    totalItems: items.length,
+    pagesCount: pages.length,
+    postsCount,
+    attachmentsCount,
+    pages
+  };
+}
+
+/**
+ * Convert a ParsedWxrPage into the website's Page record
+ */
+export function convertWxrPageToSitePage(parsed: ParsedWxrPage): Page {
+  return {
+    id: `wp-page-${parsed.wp_id}`,
+    title: parsed.title,
+    slug: parsed.slug,
+    sections: parsed.sections,
+    featured_image: parsed.featured_image,
+    seo_title: `${parsed.title} | The Digital Librarian`,
+    seo_description: parsed.excerpt || 'Professional information and guidance from The Digital Librarian.',
+    published: parsed.status === 'publish',
+    created_at: parsed.date,
+    updated_at: new Date().toISOString(),
+    wp_page_id: parsed.wp_id,
     original_link: parsed.original_link
   };
 }

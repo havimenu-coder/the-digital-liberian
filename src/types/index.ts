@@ -284,6 +284,8 @@ export interface Page {
   published: boolean;
   created_at: string;
   updated_at: string;
+  wp_page_id?: string | number;
+  original_link?: string;
 }
 
 export interface HomepageData {

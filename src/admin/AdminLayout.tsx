@@ -51,6 +51,7 @@ export const AdminLayout: React.FC = () => {
   const navItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { label: 'Pages & Builder', path: '/admin/pages', icon: FileText },
+    { label: 'Page Importer', path: '/admin/page-importer', icon: FileUp },
     { label: 'Navigation', path: '/admin/navigation', icon: MenuIcon },
     { label: 'Homepage Content', path: '/admin/homepage', icon: Home },
     { label: 'Services / Solutions', path: '/admin/services', icon: Briefcase },

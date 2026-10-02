@@ -427,6 +427,40 @@ export const dataStore = {
     saveLocal(STORAGE_KEYS.PAGES, list.filter(p => p.id !== id));
   },
 
+  savePagesBatch: async (
+    newPages: Page[],
+    overwriteDuplicates: boolean = false
+  ): Promise<{ added: number; updated: number; skipped: number }> => {
+    const list = loadLocal<Page[]>(STORAGE_KEYS.PAGES, []);
+    let added = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    for (const page of newPages) {
+      const existingIndex = list.findIndex(p =>
+        (page.wp_page_id && p.wp_page_id && String(p.wp_page_id) === String(page.wp_page_id)) ||
+        (page.slug && p.slug.toLowerCase() === page.slug.toLowerCase()) ||
+        (page.original_link && p.original_link && p.original_link === page.original_link) ||
+        (page.title && p.title.trim().toLowerCase() === page.title.trim().toLowerCase())
+      );
+
+      if (existingIndex >= 0) {
+        if (overwriteDuplicates) {
+          list[existingIndex] = { ...list[existingIndex], ...page, id: list[existingIndex].id, updated_at: new Date().toISOString() };
+          updated++;
+        } else {
+          skipped++;
+        }
+      } else {
+        list.unshift({ ...page, created_at: page.created_at || new Date().toISOString(), updated_at: new Date().toISOString() });
+        added++;
+      }
+    }
+
+    saveLocal(STORAGE_KEYS.PAGES, list);
+    return { added, updated, skipped };
+  },
+
   // 15. Form Submissions
   getSubmissions: async (): Promise<FormSubmission[]> => {
     return loadLocal<FormSubmission[]>(STORAGE_KEYS.SUBMISSIONS, []);

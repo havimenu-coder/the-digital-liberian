@@ -33,6 +33,7 @@ import { AdminServices } from './admin/AdminServices';
 import { AdminResources } from './admin/AdminResources';
 import { AdminBlog } from './admin/AdminBlog';
 import { AdminBlogImporter } from './admin/AdminBlogImporter';
+import { AdminPageImporter } from './admin/AdminPageImporter';
 import { AdminEvents } from './admin/AdminEvents';
 import { AdminInitiatives } from './admin/AdminInitiatives';
 import { AdminTeam } from './admin/AdminTeam';
@@ -63,6 +64,7 @@ export const App: React.FC = () => {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="pages" element={<AdminPages />} />
+        <Route path="page-importer" element={<AdminPageImporter />} />
         <Route path="navigation" element={<AdminNavigation />} />
         <Route path="homepage" element={<AdminHomepage />} />
         <Route path="services" element={<AdminServices />} />
