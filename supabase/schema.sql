@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS public.blog_posts (
   content TEXT NOT NULL,
   featured_image TEXT,
   category TEXT NOT NULL,
+  video_url TEXT,
   tags JSONB DEFAULT '[]'::jsonb,
   author_name TEXT NOT NULL,
   author_role TEXT,
@@ -120,7 +121,9 @@ CREATE TABLE IF NOT EXISTS public.blog_posts (
   published_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
   reading_time TEXT DEFAULT '5 min read',
   seo_title TEXT,
-  seo_description TEXT
+  seo_description TEXT,
+  wp_post_id TEXT,
+  original_link TEXT
 );
 
 -- 8. EVENTS TABLE
@@ -136,6 +139,7 @@ CREATE TABLE IF NOT EXISTS public.events (
   location TEXT NOT NULL,
   is_virtual BOOLEAN DEFAULT true,
   flyer_url TEXT,
+  video_url TEXT,
   description TEXT NOT NULL,
   expectations JSONB DEFAULT '[]'::jsonb,
   investment_tiers JSONB DEFAULT '[]'::jsonb,
@@ -143,6 +147,26 @@ CREATE TABLE IF NOT EXISTS public.events (
   whatsapp_redirect_url TEXT,
   published BOOLEAN DEFAULT true,
   featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- 9. PAST EVENT PHOTO GALLERIES
+CREATE TABLE IF NOT EXISTS public.event_galleries (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  event_date DATE NOT NULL,
+  published BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.event_gallery_photos (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  gallery_id UUID NOT NULL REFERENCES public.event_galleries(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  caption TEXT NOT NULL DEFAULT '',
+  display_order INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
@@ -228,7 +252,9 @@ CREATE TABLE IF NOT EXISTS public.pages (
   seo_description TEXT,
   published BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+  wp_page_id TEXT,
+  original_link TEXT
 );
 
 -- 15. FORM SUBMISSIONS TABLE
@@ -262,6 +288,8 @@ ALTER TABLE public.resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_tools ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_galleries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_gallery_photos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.initiatives ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.honorees ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
@@ -287,22 +315,83 @@ CREATE POLICY "Public read testimonials" ON public.testimonials FOR SELECT USING
 CREATE POLICY "Public read partners" ON public.partners FOR SELECT USING (true);
 CREATE POLICY "Public read published pages" ON public.pages FOR SELECT USING (published = true);
 CREATE POLICY "Public insert submissions" ON public.form_submissions FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public read media" ON public.media_items FOR SELECT USING (true);
 
--- Authenticated Admin Policies (Full Access)
-CREATE POLICY "Admin all site_settings" ON public.site_settings FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all homepage_data" ON public.homepage_data FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all navigation_items" ON public.navigation_items FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all services" ON public.services FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all resources" ON public.resources FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all ai_tools" ON public.ai_tools FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all blog_posts" ON public.blog_posts FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all events" ON public.events FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all initiatives" ON public.initiatives FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all honorees" ON public.honorees FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all team_members" ON public.team_members FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all testimonials" ON public.testimonials FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all partners" ON public.partners FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all pages" ON public.pages FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all form_submissions" ON public.form_submissions FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin all media_items" ON public.media_items FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Public read published event galleries" ON public.event_galleries
+  FOR SELECT USING (published = true);
+CREATE POLICY "Public read photos in published galleries" ON public.event_gallery_photos
+  FOR SELECT USING (EXISTS (
+    SELECT 1 FROM public.event_galleries g
+    WHERE g.id = gallery_id AND g.published = true
+  ));
+
+-- Only users with a server-managed app_metadata.role claim may administer content.
+CREATE POLICY "Admin all site_settings" ON public.site_settings FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all homepage_data" ON public.homepage_data FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all navigation_items" ON public.navigation_items FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all services" ON public.services FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all resources" ON public.resources FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all ai_tools" ON public.ai_tools FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all blog_posts" ON public.blog_posts FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all events" ON public.events FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all event galleries" ON public.event_galleries FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all event gallery photos" ON public.event_gallery_photos FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all initiatives" ON public.initiatives FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all honorees" ON public.honorees FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all team_members" ON public.team_members FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all testimonials" ON public.testimonials FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all partners" ON public.partners FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all pages" ON public.pages FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all form_submissions" ON public.form_submissions FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+CREATE POLICY "Admin all media_items" ON public.media_items FOR ALL TO authenticated
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+DROP POLICY IF EXISTS "Admin upload media files" ON storage.objects;
+CREATE POLICY "Admin upload media files" ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'media' AND (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
+DROP POLICY IF EXISTS "Admin update media files" ON storage.objects;
+CREATE POLICY "Admin update media files" ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (bucket_id = 'media' AND (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK (bucket_id = 'media' AND (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+DROP POLICY IF EXISTS "Admin delete media files" ON storage.objects;
+CREATE POLICY "Admin delete media files" ON storage.objects
+  FOR DELETE TO authenticated
+  USING (bucket_id = 'media' AND (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');

@@ -20,6 +20,8 @@ export interface SiteSettings {
     facebook_group: string;
     instagram: string;
     youtube: string;
+    tiktok: string;
+    threads: string;
   };
   footer_tagline: string;
   copyright_text: string;
@@ -145,6 +147,24 @@ export interface Event {
   whatsapp_redirect_url: string;
   published: boolean;
   featured: boolean;
+}
+
+export interface EventGalleryPhoto {
+  id: string;
+  gallery_id: string;
+  image_url: string;
+  caption: string;
+  display_order: number;
+}
+
+export interface EventGallery {
+  id: string;
+  title: string;
+  description: string;
+  event_date: string;
+  published: boolean;
+  created_at: string;
+  photos: EventGalleryPhoto[];
 }
 
 export interface EventRegistration {

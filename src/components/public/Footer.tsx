@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Youtube, Facebook, Linkedin, Instagram, Twitter, Mail, Phone, ArrowUpRight, Lock } from 'lucide-react';
+import { Youtube, Facebook, Linkedin, Instagram, Twitter, Mail, Phone, ArrowUpRight } from 'lucide-react';
 import { dataStore } from '../../lib/storage';
 import { SiteSettings } from '../../types';
 
@@ -58,54 +58,36 @@ export const Footer: React.FC = () => {
 
             {/* Social Icons */}
             <div className="pt-3">
-              <div className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-3">
-                Follow TheDL
-              </div>
-              <div className="flex items-center space-x-3">
-                <a 
-                  href={settings?.social_links.youtube || "https://youtube.com/@didigitallibrarian8254"} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-blue-950/60 border border-blue-800 flex items-center justify-center text-slate-300 hover:text-white hover:bg-brand-blue transition-all"
-                  aria-label="YouTube Channel"
-                >
-                  <Youtube className="w-4 h-4" />
+              <h2 className="text-sm font-bold text-white mb-3">
+                Follow Me and I&apos;ll Follow Back Immediately 👍🏽
+              </h2>
+              <a
+                href={settings?.social_links.youtube || 'https://youtube.com/@thedigitallibr'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-red-700"
+              >
+                <Youtube className="h-4 w-4" />
+                Subscribe on YouTube
+              </a>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <a href={settings?.social_links.facebook_page || 'https://www.facebook.com/thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on Facebook" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                  <Facebook className="h-4 w-4" /> Facebook
                 </a>
-                <a 
-                  href={settings?.social_links.linkedin || "https://linkedin.com/in/sylvester-ebhonu"} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-blue-950/60 border border-blue-800 flex items-center justify-center text-slate-300 hover:text-white hover:bg-brand-blue transition-all"
-                  aria-label="LinkedIn Profile"
-                >
-                  <Linkedin className="w-4 h-4" />
+                <a href={settings?.social_links.instagram || 'https://www.instagram.com/thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                  <Instagram className="h-4 w-4" /> Instagram
                 </a>
-                <a 
-                  href={settings?.social_links.facebook_page || "https://facebook.com/didigitallibrarian"} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-blue-950/60 border border-blue-800 flex items-center justify-center text-slate-300 hover:text-white hover:bg-brand-blue transition-all"
-                  aria-label="Facebook Page"
-                >
-                  <Facebook className="w-4 h-4" />
+                <a href={settings?.social_links.tiktok || 'https://tiktok.com/@thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on TikTok" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                  <span className="flex h-4 w-4 items-center justify-center font-bold">♪</span> TikTok
                 </a>
-                <a 
-                  href={settings?.social_links.instagram || "https://instagram.com/didigital_librarian"} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-blue-950/60 border border-blue-800 flex items-center justify-center text-slate-300 hover:text-white hover:bg-brand-blue transition-all"
-                  aria-label="Instagram Profile"
-                >
-                  <Instagram className="w-4 h-4" />
+                <a href={settings?.social_links.twitter || 'https://www.twitter.com/thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on Twitter / X" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                  <Twitter className="h-4 w-4" /> Twitter / X
                 </a>
-                <a 
-                  href={settings?.social_links.twitter || "https://twitter.com/didigital_libr"} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-blue-950/60 border border-blue-800 flex items-center justify-center text-slate-300 hover:text-white hover:bg-brand-blue transition-all"
-                  aria-label="Twitter / X Profile"
-                >
-                  <Twitter className="w-4 h-4" />
+                <a href={settings?.social_links.linkedin || 'https://www.linkedin.com/in/thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on LinkedIn" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                  <Linkedin className="h-4 w-4" /> LinkedIn
+                </a>
+                <a href={settings?.social_links.threads || 'https://www.threads.net/@thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on Threads" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                  <span className="flex h-4 w-4 items-center justify-center font-bold">@</span> Threads
                 </a>
               </div>
             </div>
@@ -237,10 +219,6 @@ export const Footer: React.FC = () => {
               Terms of Use
             </Link>
             <span>·</span>
-            <Link to="/admin" className="text-slate-500 hover:text-brand-blue transition-colors flex items-center gap-1">
-              <Lock className="w-3 h-3" />
-              Admin CMS
-            </Link>
           </div>
         </div>
 

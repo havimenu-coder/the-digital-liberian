@@ -61,21 +61,17 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
       // 1. If Supabase is configured, upload to Supabase 'media' bucket
       if (isSupabaseConfigured && supabase) {
-        const fileExt = file.name.split('.').pop();
         const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const fileName = `${Date.now()}-${safeName}`;
+        const fileName = `${crypto.randomUUID()}-${safeName}`;
         
         const { error: uploadError } = await supabase.storage.from('media').upload(fileName, file, {
           cacheControl: '3600',
-          upsert: true
+          upsert: false
         });
 
-        if (!uploadError) {
-          const { data: publicUrlData } = supabase.storage.from('media').getPublicUrl(fileName);
-          finalUrl = publicUrlData.publicUrl;
-        } else {
-          console.warn('Supabase upload failed, falling back to local data URL', uploadError);
-        }
+        if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
+        const { data: publicUrlData } = supabase.storage.from('media').getPublicUrl(fileName);
+        finalUrl = publicUrlData.publicUrl;
       }
 
       // 2. Fallback to Base64 data URL for instant zero-config preview and persistence

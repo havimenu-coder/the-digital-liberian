@@ -197,6 +197,32 @@ export const AdminSettings: React.FC = () => {
               className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
             />
           </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">TikTok Profile URL</label>
+            <input
+              type="url"
+              value={settings.social_links.tiktok}
+              onChange={e => setSettings({
+                ...settings,
+                social_links: { ...settings.social_links, tiktok: e.target.value }
+              })}
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Threads Profile URL</label>
+            <input
+              type="url"
+              value={settings.social_links.threads}
+              onChange={e => setSettings({
+                ...settings,
+                social_links: { ...settings.social_links, threads: e.target.value }
+              })}
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded"
+            />
+          </div>
         </div>
       </div>
 

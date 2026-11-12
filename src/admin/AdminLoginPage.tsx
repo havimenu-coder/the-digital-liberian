@@ -4,8 +4,8 @@ import { Lock, Mail, Key, ArrowRight, ShieldCheck } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 export const AdminLoginPage: React.FC = () => {
-  const [email, setEmail] = useState('admin@thedigital-librarian.com');
-  const [password, setPassword] = useState('admin12345');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -15,40 +15,26 @@ export const AdminLoginPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
 
-    // If Supabase is configured, authenticate via Supabase Auth
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error: authErr } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (authErr) {
-          throw authErr;
-        }
-
-        if (data.session) {
-          localStorage.setItem('thedl_admin_session', JSON.stringify({
-            email: data.user.email,
-            token: data.session.access_token
-          }));
-          navigate('/admin');
-          return;
-        }
-      } catch (err: any) {
-        console.warn('Supabase auth failed, falling back to local admin check', err);
-      }
+    if (!isSupabaseConfigured || !supabase) {
+      setError('Administrator sign-in is unavailable because Supabase is not configured.');
+      setIsLoading(false);
+      return;
     }
 
-    // Default safe local authentication check
-    if (password === 'admin12345' || password.length >= 6) {
-      localStorage.setItem('thedl_admin_session', JSON.stringify({
-        email,
-        timestamp: Date.now()
-      }));
-      navigate('/admin');
-    } else {
-      setError('Invalid password. Default demo password is admin12345');
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) throw authError;
+
+      if (data.user.app_metadata.role !== 'admin') {
+        await supabase.auth.signOut();
+        setError('This account is not authorized to access the administration dashboard.');
+        return;
+      }
+
+      navigate('/admin', { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign-in failed. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -120,8 +106,7 @@ export const AdminLoginPage: React.FC = () => {
 
         <div className="pt-4 border-t border-slate-100 text-center space-y-2">
           <div className="text-[11px] text-slate-500">
-            Demo Credentials Pre-filled: <br />
-            <span className="font-mono text-brand-dark font-semibold">admin@thedigital-librarian.com / admin12345</span>
+            Access is limited to administrator accounts.
           </div>
           <div>
             <Link to="/" className="text-xs text-brand-blue font-semibold hover:underline">

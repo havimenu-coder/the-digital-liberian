@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useLayoutEffect, useRef } from 'react';
+import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import { Header } from './components/public/Header';
 import { Footer } from './components/public/Footer';
 
@@ -35,6 +35,7 @@ import { AdminBlog } from './admin/AdminBlog';
 import { AdminBlogImporter } from './admin/AdminBlogImporter';
 import { AdminPageImporter } from './admin/AdminPageImporter';
 import { AdminEvents } from './admin/AdminEvents';
+import { AdminEventGalleries } from './admin/AdminEventGalleries';
 import { AdminInitiatives } from './admin/AdminInitiatives';
 import { AdminTeam } from './admin/AdminTeam';
 import { AdminTestimonials } from './admin/AdminTestimonials';
@@ -54,8 +55,39 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   </div>
 );
 
+const ScrollManager: React.FC = () => {
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const previousKey = useRef<string | null>(null);
+  const scrollPositions = useRef(new Map<string, number>());
+
+  useLayoutEffect(() => {
+    if (previousKey.current) {
+      scrollPositions.current.set(previousKey.current, window.scrollY);
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      if (location.hash) {
+        const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (navigationType === 'POP') {
+        window.scrollTo(0, scrollPositions.current.get(location.key) ?? 0);
+      } else {
+        window.scrollTo(0, 0);
+      }
+    });
+
+    previousKey.current = location.key;
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.hash, location.key, navigationType]);
+
+  return null;
+};
+
 export const App: React.FC = () => {
   return (
+    <>
+    <ScrollManager />
     <Routes>
       {/* Admin CMS Authentication */}
       <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -72,6 +104,7 @@ export const App: React.FC = () => {
         <Route path="blog" element={<AdminBlog />} />
         <Route path="blog-importer" element={<AdminBlogImporter />} />
         <Route path="events" element={<AdminEvents />} />
+        <Route path="galleries" element={<AdminEventGalleries />} />
         <Route path="initiatives" element={<AdminInitiatives />} />
         <Route path="team" element={<AdminTeam />} />
         <Route path="testimonials" element={<AdminTestimonials />} />
@@ -111,5 +144,6 @@ export const App: React.FC = () => {
       {/* 404 Fallback */}
       <Route path="*" element={<PublicLayout><NotFoundPage /></PublicLayout>} />
     </Routes>
+    </>
   );
 };

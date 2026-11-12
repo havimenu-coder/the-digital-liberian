@@ -9,6 +9,7 @@ import {
   BookOpen,
   Newspaper,
   Calendar,
+  Images,
   Award,
   Users,
   MessageSquareQuote,
@@ -26,26 +27,62 @@ import {
   FileUp
 } from 'lucide-react';
 import { WordPressImportModal } from './components/WordPressImportModal';
+import { supabase } from '../lib/supabase';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [adminUser, setAdminUser] = useState<string | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   useEffect(() => {
-    const session = localStorage.getItem('thedl_admin_session');
-    if (!session) {
-      navigate('/admin/login');
-    } else {
-      setAdminUser(JSON.parse(session).email);
+    if (!supabase) {
+      navigate('/admin/login', { replace: true });
+      return;
     }
+
+    let active = true;
+    const authorize = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!active) return;
+
+      if (error || data.user?.app_metadata.role !== 'admin') {
+        setIsAuthorized(false);
+        navigate('/admin/login', { replace: true });
+        return;
+      }
+
+      setAdminUser(data.user.email ?? null);
+      setIsAuthorized(true);
+    };
+
+    void authorize();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session || session.user.app_metadata.role !== 'admin') {
+        setIsAuthorized(false);
+        navigate('/admin/login', { replace: true });
+        return;
+      }
+
+      setAdminUser(session.user.email ?? null);
+      setIsAuthorized(true);
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('thedl_admin_session');
-    navigate('/admin/login');
+  const handleLogout = async () => {
+    if (supabase) {
+      const { error } = await supabase.auth.signOut();
+      if (error) console.error('Failed to sign out of Supabase', error);
+    }
+    setIsAuthorized(false);
+    navigate('/admin/login', { replace: true });
   };
 
   const navItems = [
@@ -59,6 +96,7 @@ export const AdminLayout: React.FC = () => {
     { label: 'Blog Posts', path: '/admin/blog', icon: Newspaper },
     { label: 'Blog Importer', path: '/admin/blog-importer', icon: FileUp },
     { label: 'Events & Tickets', path: '/admin/events', icon: Calendar },
+    { label: 'Past Event Galleries', path: '/admin/galleries', icon: Images },
     { label: 'Initiatives & LSA', path: '/admin/initiatives', icon: Award },
     { label: 'Team Members', path: '/admin/team', icon: Users },
     { label: 'Testimonials', path: '/admin/testimonials', icon: MessageSquareQuote },
@@ -67,6 +105,14 @@ export const AdminLayout: React.FC = () => {
     { label: 'Forms & Submissions', path: '/admin/submissions', icon: Inbox },
     { label: 'Site Settings & SEO', path: '/admin/settings', icon: Settings },
   ];
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 text-sm text-slate-600">
+        Checking administrator access…
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col lg:flex-row font-sans">

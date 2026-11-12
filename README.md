@@ -8,7 +8,8 @@ This project is a marketing and knowledge platform for a digital learning and li
 
 - A public-facing website with editorial-style pages and rich content sections
 - A CMS-like admin area for updating navigation, pages, services, blog posts, events, initiatives, team members, testimonials, partner logos, and media
-- Local storage persistence by default, with Supabase-ready data synchronization hooks
+- Supabase-backed content and authentication when configured
+- Local seed content for a public preview when Supabase is not configured
 - A responsive front-end built with React, TypeScript, Vite, and Tailwind CSS
 
 The application is organized as a single-page app with client-side routing and a public/admin split.
@@ -63,11 +64,13 @@ The application is organized as a single-page app with client-side routing and a
 - Submissions handling
 - Site settings
 
-### Content storage
+### Content storage and administration security
 
-- Local storage-backed by default for quick setup and demos
-- Supabase integration supported through environment variables and the data layer
-- Ready for future migration to a dedicated backend if required
+- When Supabase is configured, public pages read from Supabase and CMS changes are written to the same tables.
+- Without Supabase configuration, the public site uses local seed data; CMS sign-in is disabled rather than using a shared demo password.
+- CMS access requires Supabase Auth and a server-managed `app_metadata.role` value of `admin`.
+- Row-level security checks that admin claim for content writes, submissions, media metadata, event galleries, and uploads. Do not use `user_metadata` for authorization.
+- The frontend uses only the Supabase URL and public anon key. Never add a service-role key or other secret to a `VITE_` variable.
 
 ## Repository Structure
 
@@ -131,6 +134,14 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 If these values are not set, the app will fall back to local storage data.
+
+## Supabase setup
+
+For a new Supabase project, run `supabase/schema.sql`. To upgrade an existing project, run the newest SQL file in `supabase/migrations/` in the Supabase SQL Editor. Existing CMS users must be assigned the server-managed `app_metadata.role = "admin"` claim by a trusted administrator; no public signup or browser-side role editing should grant admin access. The login page rejects accounts without that claim, and the database policies independently enforce it.
+
+Create the `media` Storage bucket for event and site images. The app expects public image URLs for published content, so only upload assets intended for public display to this bucket. The schema/migration restricts bucket writes, updates, and deletes to admins. Review any existing `storage.objects` policies and remove broader write policies that would override this restriction.
+
+After schema setup, configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the local environment and hosting provider. Configure Supabase Auth email/password sign-in and create/invite administrator accounts through a trusted server-side process.
 
 ## Running the App
 
@@ -243,6 +254,8 @@ npm install
 - Check localStorage in browser dev tools
 - Verify Supabase environment variables if Supabase is enabled
 - Ensure the data store is not blocked by invalid JSON or storage errors
+- Confirm the Supabase schema/migrations are applied, the correct project URL and anon key are set, and the content is published
+- Confirm the signed-in administrator has `app_metadata.role = "admin"`
 
 ### Build fails
 

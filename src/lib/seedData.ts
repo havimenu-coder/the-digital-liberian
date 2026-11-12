@@ -30,13 +30,15 @@ export const initialSiteSettings: SiteSettings = {
   whatsapp_link: "https://wa.me/message/VV5A32BESJYHC1",
   whatsapp_community_link: "https://chat.whatsapp.com/BeYzmeB5lUP8TXqUwMNWlD",
   social_links: {
-    twitter: "https://twitter.com/didigital_libr",
-    linkedin: "https://linkedin.com/in/sylvester-ebhonu",
-    facebook_page: "https://facebook.com/didigitallibrarian",
+    twitter: "https://www.twitter.com/thedigitallibr",
+    linkedin: "https://www.linkedin.com/in/thedigitallibr",
+    facebook_page: "https://www.facebook.com/thedigitallibr",
     facebook_personal: "https://facebook.com/sylvester.ebhonu",
     facebook_group: "https://www.facebook.com/groups/brandedlibrarians/",
-    instagram: "https://instagram.com/didigital_librarian",
-    youtube: "https://youtube.com/@didigitallibrarian8254"
+    instagram: "https://www.instagram.com/thedigitallibr",
+    youtube: "https://youtube.com/@thedigitallibr",
+    tiktok: "https://tiktok.com/@thedigitallibr",
+    threads: "https://www.threads.net/@thedigitallibr"
   },
   footer_tagline: "Digital Solutions. Learning. Research. Libraries. AI. Media.",
   copyright_text: "© 2026 The Digital Librarian. All rights reserved.",

@@ -16,7 +16,12 @@ export const Header: React.FC = () => {
       dataStore.getNavigation(),
       dataStore.getSiteSettings()
     ]);
-    setNavItems(nav);
+    setNavItems(nav
+      .filter(item => !item.url.startsWith('/admin'))
+      .map(item => ({
+        ...item,
+        children: item.children?.filter(child => !child.url.startsWith('/admin'))
+      })));
     setSettings(s);
   };
 

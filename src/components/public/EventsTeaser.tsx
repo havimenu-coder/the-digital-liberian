@@ -112,30 +112,30 @@ export const EventsTeaser: React.FC = () => {
             <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-6 w-full lg:w-auto">
               
               {/* Live Countdown Timer */}
-              <div className="flex items-center gap-2 sm:gap-3 text-center">
-                <div className="bg-blue-950/80 border border-blue-800/80 rounded-xl p-3 min-w-[62px]">
-                  <div className="font-serif text-xl sm:text-2xl font-bold text-white">
+              <div className="flex w-full items-center justify-between gap-1 text-center sm:w-auto sm:justify-start sm:gap-3">
+                <div className="min-w-0 flex-1 rounded-xl border border-blue-800/80 bg-blue-950/80 p-2 sm:min-w-[62px] sm:flex-none sm:p-3">
+                  <div className="font-serif text-lg font-bold text-white sm:text-2xl">
                     {timeLeft.days}
                   </div>
                   <div className="text-[10px] uppercase tracking-wider text-slate-400">Days</div>
                 </div>
 
-                <div className="bg-blue-950/80 border border-blue-800/80 rounded-xl p-3 min-w-[62px]">
-                  <div className="font-serif text-xl sm:text-2xl font-bold text-white">
+                <div className="min-w-0 flex-1 rounded-xl border border-blue-800/80 bg-blue-950/80 p-2 sm:min-w-[62px] sm:flex-none sm:p-3">
+                  <div className="font-serif text-lg font-bold text-white sm:text-2xl">
                     {timeLeft.hours}
                   </div>
                   <div className="text-[10px] uppercase tracking-wider text-slate-400">Hours</div>
                 </div>
 
-                <div className="bg-blue-950/80 border border-blue-800/80 rounded-xl p-3 min-w-[62px]">
-                  <div className="font-serif text-xl sm:text-2xl font-bold text-white">
+                <div className="min-w-0 flex-1 rounded-xl border border-blue-800/80 bg-blue-950/80 p-2 sm:min-w-[62px] sm:flex-none sm:p-3">
+                  <div className="font-serif text-lg font-bold text-white sm:text-2xl">
                     {timeLeft.minutes}
                   </div>
                   <div className="text-[10px] uppercase tracking-wider text-slate-400">Mins</div>
                 </div>
 
-                <div className="bg-blue-950/80 border border-blue-800/80 rounded-xl p-3 min-w-[62px]">
-                  <div className="font-serif text-xl sm:text-2xl font-bold text-brand-blue">
+                <div className="min-w-0 flex-1 rounded-xl border border-blue-800/80 bg-blue-950/80 p-2 sm:min-w-[62px] sm:flex-none sm:p-3">
+                  <div className="font-serif text-lg font-bold text-brand-blue sm:text-2xl">
                     {timeLeft.seconds}
                   </div>
                   <div className="text-[10px] uppercase tracking-wider text-slate-400">Secs</div>
