@@ -17,7 +17,7 @@ export const DynamicCustomPage: React.FC = () => {
   useEffect(() => {
     if (!slug) return;
     dataStore.getPageBySlug(slug).then((p: Page | undefined) => {
-      setPage(p || null);
+      setPage(p?.published ? p : null);
       setLoading(false);
     });
   }, [slug]);

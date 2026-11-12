@@ -15,8 +15,7 @@ export const BlogPostPage: React.FC = () => {
   useEffect(() => {
     if (!slug) return;
     dataStore.getBlogPosts().then(posts => {
-      const found = posts.find(p => p.slug.toLowerCase() === slug.toLowerCase()) || posts.find(p => p.slug === slug);
-      const current = found || posts[0];
+      const current = posts.find(p => p.published && p.slug.toLowerCase() === slug.toLowerCase());
       setPost(current);
 
       if (current) {
@@ -45,7 +44,17 @@ export const BlogPostPage: React.FC = () => {
     );
   }
 
-  if (!post) return null;
+  if (!post) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-24 text-center">
+        <h1 className="font-serif text-4xl font-bold text-brand-dark mb-4">Article Not Found</h1>
+        <p className="text-slate-600 mb-6">This article may have been removed or is not published yet.</p>
+        <Link to="/blog" className="bg-brand-blue text-white px-6 py-2.5 rounded font-semibold text-sm">
+          Return to the Blog
+        </Link>
+      </div>
+    );
+  }
 
   const currentUrl = window.location.href;
   const isHtmlContent = Boolean(post.content && /<[a-z][\s\S]*>/i.test(post.content));

@@ -38,7 +38,7 @@ export const AdminPages: React.FC = () => {
         id: 'page-' + Date.now(),
         title: imported.title,
         slug: imported.slug,
-        published: true,
+        published: false,
         seo_title: `${imported.title} | The Digital Librarian`,
         seo_description: imported.excerpt,
         featured_image: imported.featured_image,
@@ -125,16 +125,33 @@ export const AdminPages: React.FC = () => {
 
   const handleSavePage = async () => {
     if (!editingPage) return;
-    await dataStore.savePage(editingPage);
-    await loadPages();
-    alert('Page saved successfully!');
-    setEditingPage(null);
+    try {
+      await dataStore.savePage(editingPage);
+      await loadPages();
+      alert('Page saved successfully!');
+      setEditingPage(null);
+    } catch (error) {
+      alert(`Failed to save page: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   const handleDeletePage = async (id: string) => {
-    if (confirm('Are you sure you want to delete this page?')) {
+    if (!confirm('Are you sure you want to delete this page?')) return;
+    try {
       await dataStore.deletePage(id);
       await loadPages();
+    } catch (error) {
+      alert(`Failed to delete page: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handlePublishPage = async (page: Page) => {
+    if (!confirm(`Publish "${page.title}" at /${page.slug}?`)) return;
+    try {
+      await dataStore.savePage({ ...page, published: true });
+      await loadPages();
+    } catch (error) {
+      alert(`Failed to publish page: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -788,6 +805,16 @@ export const AdminPages: React.FC = () => {
                       {new Date(p.updated_at || p.created_at).toLocaleDateString()}
                     </td>
                     <td className="p-4 text-right space-x-2">
+                      {!p.published && (
+                        <button
+                          onClick={() => handlePublishPage(p)}
+                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[11px] font-bold text-emerald-800 hover:bg-emerald-100"
+                          title={`Publish at /${p.slug}`}
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          Publish
+                        </button>
+                      )}
                       <a
                         href={`/${p.slug}`}
                         target="_blank"

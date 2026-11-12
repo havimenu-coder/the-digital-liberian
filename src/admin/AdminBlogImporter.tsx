@@ -213,6 +213,7 @@ export const AdminBlogImporter: React.FC = () => {
     }
 
     setIsImporting(true);
+    setParseError(null);
     setImportProgress({ current: 0, total: postsToImport.length, currentTitle: 'Preparing posts...' });
 
     let addedCount = 0;
@@ -236,6 +237,7 @@ export const AdminBlogImporter: React.FC = () => {
         convertedPosts.push(blogPost);
       } catch (err) {
         failedCount++;
+        setParseError(`Failed to convert "${wxrPost.title}": ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
 
       // Small tick for smooth UI rendering
@@ -245,27 +247,25 @@ export const AdminBlogImporter: React.FC = () => {
     }
 
     // Save batch into website database
-    try {
-      const res = await dataStore.saveBlogPostsBatch(convertedPosts, overwriteDuplicates);
-      addedCount = res.added;
-      updatedCount = res.updated;
-      skippedCount = res.skipped;
-    } catch (err) {
-      console.error('Batch import storage error:', err);
-      // Fallback one-by-one save
-      for (const p of convertedPosts) {
-        try {
-          await dataStore.saveBlogPost(p);
-          addedCount++;
-        } catch {
-          failedCount++;
-        }
+    if (convertedPosts.length > 0) {
+      try {
+        const res = await dataStore.saveBlogPostsBatch(convertedPosts, overwriteDuplicates);
+        addedCount = res.added;
+        updatedCount = res.updated;
+        skippedCount = res.skipped;
+      } catch (err) {
+        failedCount += convertedPosts.length;
+        setParseError(`Could not save imported posts: ${err instanceof Error ? err.message : 'Unknown storage error'}`);
       }
     }
 
     // Refresh existing posts
-    const updatedList = await dataStore.getBlogPosts();
-    setExistingPosts(updatedList);
+    try {
+      const updatedList = await dataStore.getBlogPosts();
+      setExistingPosts(updatedList);
+    } catch (err) {
+      setParseError(`Could not refresh the blog list: ${err instanceof Error ? err.message : 'Unknown storage error'}`);
+    }
 
     setIsImporting(false);
     setImportSummary({
@@ -279,6 +279,8 @@ export const AdminBlogImporter: React.FC = () => {
 
   const newPostsCount = parseResult?.posts.filter(p => !p.is_duplicate).length || 0;
   const duplicatePostsCount = parseResult?.posts.filter(p => p.is_duplicate).length || 0;
+  const importFailed = Boolean(importSummary && importSummary.failed > 0 && importSummary.added + importSummary.updated === 0);
+  const importHadNoChanges = Boolean(importSummary && importSummary.added + importSummary.updated === 0);
 
   return (
     <div className="space-y-8">
@@ -581,14 +583,20 @@ export const AdminBlogImporter: React.FC = () => {
                                   rel="noopener noreferrer" 
                                   className="text-brand-blue hover:underline inline-flex items-center gap-0.5 ml-1"
                                 >
-                                  <span>link</span>
+                                  <span>Source</span>
                                   <ExternalLink className="w-2.5 h-2.5" />
                                 </a>
                               )}
                             </div>
                           </td>
-                          <td className="p-3 font-mono text-[11px] text-slate-600 max-w-[140px] truncate">
-                            /{p.slug}
+                          <td className="p-3 font-mono text-[11px] max-w-[180px] truncate">
+                            <Link
+                              to={`/blog/${p.slug}`}
+                              className="text-brand-blue hover:underline"
+                              title={`The Digital Librarian blog URL: /blog/${p.slug}`}
+                            >
+                              /blog/{p.slug}
+                            </Link>
                           </td>
                           <td className="p-3 text-slate-500 whitespace-nowrap">
                             {p.date}
@@ -608,7 +616,7 @@ export const AdminBlogImporter: React.FC = () => {
                               </span>
                             ) : (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                Ready
+                                Will Publish
                               </span>
                             )}
                           </td>
@@ -699,17 +707,21 @@ export const AdminBlogImporter: React.FC = () => {
 
           {/* Import Summary */}
           {importSummary && (
-            <div className="p-6 bg-emerald-50/80 border border-emerald-200 rounded-2xl space-y-4 animate-fadeIn">
+            <div className={`p-6 ${importFailed ? 'bg-rose-50/80 border-rose-200' : 'bg-emerald-50/80 border-emerald-200'} border rounded-2xl space-y-4 animate-fadeIn`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold">
-                  <Check className="w-5 h-5" />
+                <div className={`w-10 h-10 rounded-full ${importFailed ? 'bg-rose-600' : 'bg-emerald-600'} text-white flex items-center justify-center font-bold`}>
+                  {importFailed ? <AlertCircle className="w-5 h-5" /> : <Check className="w-5 h-5" />}
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg font-bold text-emerald-950">
-                    Import Process Completed!
+                  <h3 className={`font-serif text-lg font-bold ${importFailed ? 'text-rose-950' : 'text-emerald-950'}`}>
+                    {importFailed ? 'Import Failed' : 'Import Process Completed'}
                   </h3>
-                  <p className="text-xs text-emerald-800">
-                    The requested blog posts have been created as standalone database records.
+                  <p className={`text-xs ${importFailed ? 'text-rose-800' : 'text-emerald-800'}`}>
+                    {importFailed
+                      ? 'No posts were saved. Review the error above and try again.'
+                      : importHadNoChanges
+                        ? 'No new posts were saved; the selected items were skipped as duplicates.'
+                        : 'New imported blog posts are published on The Digital Librarian site.'}
                   </p>
                 </div>
               </div>
@@ -803,7 +815,7 @@ export const AdminBlogImporter: React.FC = () => {
                 <div>·</div>
                 <div><strong>Word Count:</strong> {inspectingPost.word_count} words ({inspectingPost.reading_time})</div>
                 <div>·</div>
-                <div><strong>Status:</strong> {inspectingPost.status}</div>
+                <div><strong>Imported status:</strong> Published (source: {inspectingPost.status})</div>
               </div>
 
               {/* Featured Image */}

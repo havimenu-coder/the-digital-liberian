@@ -165,13 +165,13 @@ export const WordPressImportModal: React.FC<WordPressImportModalProps> = ({
           featured_image: parsedItem.featured_image,
           seo_title: `${parsedItem.title} | The Digital Librarian`,
           seo_description: parsedItem.excerpt || 'Resource and information page from The Digital Librarian.',
-          published: true,
+          published: false,
           created_at: parsedItem.date || new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
 
         await dataStore.savePage(newPage);
-        setSuccessMessage(`Page "${newPage.title}" imported and saved successfully!`);
+        setSuccessMessage(`Page "${newPage.title}" imported as a draft. Publish it from the Page Builder when ready.`);
         setTimeout(() => {
           onClose();
           window.location.href = `/admin/pages`;
@@ -531,7 +531,7 @@ export const WordPressImportModal: React.FC<WordPressImportModalProps> = ({
                   <Check className="w-4 h-4" />
                   <span>
                     {destination === 'page'
-                      ? onApplyToPage ? 'Apply to Current Page' : 'Save as Custom Page'
+                      ? onApplyToPage ? 'Apply to Current Page' : 'Save as Draft Page'
                       : onApplyToBlog ? 'Apply to Current Article' : 'Publish as Blog Post'
                     }
                   </span>

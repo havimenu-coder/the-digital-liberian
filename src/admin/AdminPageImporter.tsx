@@ -137,7 +137,7 @@ export const AdminPageImporter: React.FC = () => {
       try {
         const result = parseWordPressWxrPages(xmlContent, existingPages);
         if (result.pagesCount === 0) {
-          setParseError('No published pages (wp:post_type="page") were found in this XML file. If you are importing blog articles, please use the Blog Importer.');
+          setParseError('No pages (wp:post_type="page") were found in this XML file. If you are importing blog articles, please use the Blog Importer.');
           setIsParsing(false);
           return;
         }
@@ -180,7 +180,7 @@ export const AdminPageImporter: React.FC = () => {
         featured_image: item.featured_image,
         seo_title: `${item.title} | The Digital Librarian`,
         seo_description: item.excerpt,
-        published: true,
+        published: false,
         created_at: item.date || new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -256,6 +256,7 @@ export const AdminPageImporter: React.FC = () => {
     }
 
     setIsImporting(true);
+    setParseError(null);
     setImportProgress({ current: 0, total: pagesToImport.length, currentTitle: 'Preparing pages...' });
 
     let addedCount = 0;
@@ -278,6 +279,7 @@ export const AdminPageImporter: React.FC = () => {
         convertedPages.push(sitePage);
       } catch (err) {
         failedCount++;
+        setParseError(`Failed to convert "${wxrPage.title}": ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
 
       if (i % 3 === 0) {
@@ -286,25 +288,24 @@ export const AdminPageImporter: React.FC = () => {
     }
 
     // Save batch into website database
-    try {
-      const res = await dataStore.savePagesBatch(convertedPages, overwriteDuplicates);
-      addedCount = res.added;
-      updatedCount = res.updated;
-      skippedCount = res.skipped;
-    } catch (err) {
-      console.error('Batch save error:', err);
-      for (const p of convertedPages) {
-        try {
-          await dataStore.savePage(p);
-          addedCount++;
-        } catch {
-          failedCount++;
-        }
+    if (convertedPages.length > 0) {
+      try {
+        const res = await dataStore.savePagesBatch(convertedPages, overwriteDuplicates);
+        addedCount = res.added;
+        updatedCount = res.updated;
+        skippedCount = res.skipped;
+      } catch (err) {
+        failedCount += convertedPages.length;
+        setParseError(`Could not save imported pages: ${err instanceof Error ? err.message : 'Unknown storage error'}`);
       }
     }
 
-    const updatedList = await dataStore.getPages();
-    setExistingPages(updatedList);
+    try {
+      const updatedList = await dataStore.getPages();
+      setExistingPages(updatedList);
+    } catch (err) {
+      setParseError(`Could not refresh the page list: ${err instanceof Error ? err.message : 'Unknown storage error'}`);
+    }
 
     setIsImporting(false);
     setImportSummary({
@@ -318,6 +319,8 @@ export const AdminPageImporter: React.FC = () => {
 
   const newPagesCount = parseResult?.pages.filter(p => !p.is_duplicate).length || 0;
   const duplicatePagesCount = parseResult?.pages.filter(p => p.is_duplicate).length || 0;
+  const importFailed = Boolean(importSummary && importSummary.failed > 0 && importSummary.added + importSummary.updated === 0);
+  const importHadNoChanges = Boolean(importSummary && importSummary.added + importSummary.updated === 0);
 
   return (
     <div className="space-y-8">
@@ -655,7 +658,7 @@ export const AdminPageImporter: React.FC = () => {
                       />
                     </th>
                     <th className="p-3">Page Title</th>
-                    <th className="p-3">URL Slug</th>
+                    <th className="p-3">The Digital Librarian URL</th>
                     <th className="p-3">Generated Blocks</th>
                     <th className="p-3">Date</th>
                     <th className="p-3">Status</th>
@@ -692,7 +695,7 @@ export const AdminPageImporter: React.FC = () => {
                                   rel="noopener noreferrer" 
                                   className="text-brand-blue hover:underline inline-flex items-center gap-0.5 ml-1"
                                 >
-                                  <span>link</span>
+                                  <span>Source</span>
                                   <ExternalLink className="w-2.5 h-2.5" />
                                 </a>
                               )}
@@ -719,7 +722,7 @@ export const AdminPageImporter: React.FC = () => {
                               </span>
                             ) : (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                Ready
+                                Will Save as Draft
                               </span>
                             )}
                           </td>
@@ -813,17 +816,21 @@ export const AdminPageImporter: React.FC = () => {
 
       {/* Import Summary */}
       {importSummary && (
-        <div className="p-6 bg-emerald-50/80 border border-emerald-200 rounded-2xl space-y-4 animate-fadeIn">
+        <div className={`p-6 ${importFailed ? 'bg-rose-50/80 border-rose-200' : 'bg-emerald-50/80 border-emerald-200'} border rounded-2xl space-y-4 animate-fadeIn`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold">
-              <Check className="w-5 h-5" />
+            <div className={`w-10 h-10 rounded-full ${importFailed ? 'bg-rose-600' : 'bg-emerald-600'} text-white flex items-center justify-center font-bold`}>
+              {importFailed ? <AlertCircle className="w-5 h-5" /> : <Check className="w-5 h-5" />}
             </div>
             <div>
-              <h3 className="font-serif text-lg font-bold text-emerald-950">
-                Pages Successfully Imported!
+              <h3 className={`font-serif text-lg font-bold ${importFailed ? 'text-rose-950' : 'text-emerald-950'}`}>
+                {importFailed ? 'Import Failed' : 'Import Process Completed'}
               </h3>
-              <p className="text-xs text-emerald-800">
-                Your custom pages are now ready and available in the Page Builder.
+              <p className={`text-xs ${importFailed ? 'text-rose-800' : 'text-emerald-800'}`}>
+                {importFailed
+                  ? 'No pages were saved. Review the error above and try again.'
+                  : importHadNoChanges
+                    ? 'No new pages were saved; the selected items were skipped as duplicates.'
+                    : 'Imported pages are saved as drafts. Open them in the Page Builder to publish or delete them.'}
               </p>
             </div>
           </div>
@@ -914,7 +921,7 @@ export const AdminPageImporter: React.FC = () => {
                 <div>·</div>
                 <div><strong>Word Count:</strong> {inspectingPage.word_count} words</div>
                 <div>·</div>
-                <div><strong>Status:</strong> {inspectingPage.status}</div>
+                <div><strong>Imported status:</strong> Draft (source: {inspectingPage.status})</div>
               </div>
 
               {/* Sections Breakdown */}
