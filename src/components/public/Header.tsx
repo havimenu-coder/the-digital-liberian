@@ -47,13 +47,12 @@ export const Header: React.FC = () => {
           {/* Logo Brand */}
           <Link to="/" className="flex items-center group">
             <div className="h-12 sm:h-16 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
-              <img 
-                src="/images/digital-librarian-logo.png" 
-                alt="The Digital Librarian Logo" 
+              <img
+                src="/images/brand/didigital-librarian-logo.png"
+                alt="The Digital Librarian Logo"
+                width={666}
+                height={240}
                 className="h-12 sm:h-16 w-auto object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/images/DIGITAL%20LIBRARIAN%20LOGO3x.png';
-                }}
               />
             </div>
           </Link>

@@ -24,59 +24,24 @@ export const Hero: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Left Column: Sylvester Portrait with Decorative Tech Line Art */}
+          {/* Left Column: Sylvester Portrait (original folding-arms photograph) */}
           <div className="lg:col-span-5 relative flex justify-center order-2 lg:order-1">
-            
-            {/* Ambient Tech Line Art Icons in Dark Blue / Crisp Accent */}
-            <div className="absolute -top-6 -left-4 w-16 h-16 opacity-40 pointer-events-none">
-              {/* Laptop icon outline */}
-              <svg viewBox="0 0 24 24" fill="none" stroke="#00003F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="12" rx="2" />
-                <line x1="2" y1="20" x2="22" y2="20" />
-              </svg>
-            </div>
+            <div className="relative z-10 w-full max-w-[320px] sm:max-w-[360px] lg:max-w-[400px]">
 
-            <div className="absolute top-1/4 -right-2 w-14 h-14 opacity-40 pointer-events-none">
-              {/* AI Chip Node outline */}
-              <svg viewBox="0 0 24 24" fill="none" stroke="#00003F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="4" y="4" width="16" height="16" rx="2" />
-                <rect x="9" y="9" width="6" height="6" />
-                <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
-              </svg>
-            </div>
+              {/* Soft ambient glow behind the photo – nothing overlaps the portrait itself */}
+              <div className="absolute -inset-6 bg-gradient-to-tr from-white/30 via-brand-dark/20 to-transparent rounded-[2rem] blur-3xl pointer-events-none" aria-hidden="true" />
 
-            <div className="absolute -bottom-4 -left-2 w-16 h-16 opacity-40 pointer-events-none">
-              {/* Stacked books outline */}
-              <svg viewBox="0 0 24 24" fill="none" stroke="#00003F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-              </svg>
-            </div>
-
-            {/* Seamless Transparent Portrait Container with Radiant Ambient Glow */}
-            <div className="relative z-10 w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[420px] flex items-end justify-center">
-              
-              {/* Radiant Ambient Glow in Dark Blue & White */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-white/35 via-brand-dark/25 to-transparent rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-brand-dark/20 rounded-full blur-2xl pointer-events-none" />
-
-              {/* Portrait Cutout */}
-              <div className="relative w-full aspect-[4/5] flex items-end justify-center">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border-4 border-white/80 bg-brand-dark/10 shadow-[0_20px_40px_-12px_rgba(0,0,63,0.55)]">
                 <img
-                  src="/images/sylvester-transparent.png"
+                  src="/images/sylvester-ebhonu-folding-arms.jpg"
                   alt="Sylvester I. Ebhonu - The Digital Librarian"
-                  className="w-full h-full object-contain object-bottom filter drop-shadow-[0_15px_30px_rgba(0,0,63,0.4)]"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/sylvester-hero.png';
-                  }}
+                  width={960}
+                  height={1200}
+                  className="w-full h-full object-cover object-top"
                 />
-
-                {/* Smooth Gentle Bottom Blend into the Light Blue Background (#009DF6) */}
-                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#009DF6] to-transparent pointer-events-none" />
               </div>
 
             </div>
-
           </div>
 
           {/* Right Column: Copy & Calls to Action */}

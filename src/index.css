@@ -6,16 +6,17 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: Calibri, Carlito, 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
 
   :target {
     scroll-margin-top: 5rem;
   }
 
+  /* Headings use the same sans-serif family as body text (no serif fonts site-wide). */
   h1, h2, h3, .font-editorial {
-    font-family: 'Newsreader', Georgia, serif;
-    letter-spacing: -0.015em;
+    font-family: inherit;
+    letter-spacing: -0.005em;
   }
 }
 
