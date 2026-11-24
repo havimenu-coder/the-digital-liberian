@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { SafeHtml } from '../components/common/SafeHtml';
 import { 
   Upload, 
   FileText, 
@@ -965,9 +966,9 @@ export const AdminPageImporter: React.FC = () => {
               {/* Raw Content Body */}
               <div>
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Original Content Body:</h4>
-                <div 
+                <SafeHtml
                   className="prose prose-sm max-w-none text-slate-800 border p-4 rounded-xl border-slate-200 bg-slate-50/30 max-h-60 overflow-y-auto text-xs leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: inspectingPage.content }}
+                  html={inspectingPage.content}
                 />
               </div>
             </div>

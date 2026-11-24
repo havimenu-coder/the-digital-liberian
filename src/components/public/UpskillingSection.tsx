@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, ArrowRight, BookOpen, GraduationCap, Video, Presentation, Library, Sparkles, X } from 'lucide-react';
 import { dataStore } from '../../lib/storage';
+import { safeUrl } from '../../lib/safeUrl';
 import { HomepageData } from '../../types';
 import { getYouTubeEmbedUrl } from '../../utils/youtube';
 
@@ -109,7 +110,7 @@ export const UpskillingSection: React.FC = () => {
 
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <Link
-                  to={featured?.cta_url || "/upskilling-library"}
+                  to={safeUrl(featured?.cta_url, "/upskilling-library")}
                   className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-6 py-2.5 rounded-md text-sm font-semibold transition-all shadow-md active:scale-95"
                 >
                   <span>{featured?.cta_text || "Start Learning"}</span>

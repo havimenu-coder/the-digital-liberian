@@ -72,6 +72,23 @@ The application is organized as a single-page app with client-side routing and a
 - Row-level security checks that admin claim for content writes, submissions, media metadata, event galleries, and uploads. Do not use `user_metadata` for authorization.
 - The frontend uses only the Supabase URL and public anon key. Never add a service-role key or other secret to a `VITE_` variable.
 
+### Security rules for rich content and links
+
+- Never render CMS or imported HTML with `dangerouslySetInnerHTML` directly. Use `<SafeHtml html={...} />` (`src/components/common/SafeHtml.tsx`), which sanitizes with DOMPurify. `npm test` fails if raw HTML rendering appears anywhere else.
+- Allowed embeds (YouTube, youtube-nocookie, Vimeo) are defined only in `src/lib/sanitizeHtml.ts`. Extend that allowlist rather than loosening the sanitizer elsewhere.
+- Blog and page HTML is also sanitized when saved (`src/lib/storage/index.ts`).
+- Wrap every link, `<Link to>` or redirect whose value comes from CMS data in `safeUrl()` (`src/lib/safeUrl.ts`), which blocks `javascript:`, `data:` and other unsafe schemes.
+- WordPress URL import fetches pages directly from the browser; third-party CORS proxies must not be reintroduced. If a site blocks cross-origin requests, paste its HTML or JSON instead.
+- `vercel.json` sends a `Content-Security-Policy-Report-Only` header. Violations appear in the browser console; review them before switching to an enforcing `Content-Security-Policy`.
+
+### Tests
+
+```bash
+npm test        # raw-HTML guard + Vitest unit tests
+```
+
+On Windows, run tests from a terminal whose path uses an uppercase drive letter (`C:\...`); Vitest can fail with "Cannot read properties of undefined (reading 'config')" when the path is `c:\...`.
+
 ## Repository Structure
 
 ```text

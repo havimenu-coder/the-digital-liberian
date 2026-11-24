@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Linkedin, Twitter, Users, ArrowRight, UserPlus } from 'lucide-react';
 import { dataStore } from '../lib/storage';
+import { safeUrl } from '../lib/safeUrl';
 import { TeamMember } from '../types';
 
 export const TeamPage: React.FC = () => {
@@ -80,12 +81,12 @@ export const TeamPage: React.FC = () => {
                 <span className="text-slate-500 font-medium">Active Coordinator</span>
                 <div className="flex items-center space-x-2">
                   {member.social_links?.linkedin && (
-                    <a href={member.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue">
+                    <a href={safeUrl(member.social_links.linkedin)} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue">
                       <Linkedin className="w-4 h-4" />
                     </a>
                   )}
                   {member.social_links?.twitter && (
-                    <a href={member.social_links.twitter} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue">
+                    <a href={safeUrl(member.social_links.twitter)} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue">
                       <Twitter className="w-4 h-4" />
                     </a>
                   )}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { dataStore } from '../../lib/storage';
+import { safeUrl } from '../../lib/safeUrl';
 import { NavigationItem, SiteSettings } from '../../types';
 
 export const Header: React.FC = () => {
@@ -78,7 +79,7 @@ export const Header: React.FC = () => {
 
                   <div className="relative">
                     <Link
-                      to={item.url}
+                      to={safeUrl(item.url)}
                       className={`text-sm lg:text-[15px] font-medium transition-colors py-2 px-1 flex items-center gap-1 ${
                         isItemActive
                           ? 'text-brand-blue font-semibold'
@@ -99,7 +100,7 @@ export const Header: React.FC = () => {
                         {item.children?.map(subItem => (
                           <Link
                             key={subItem.id}
-                            to={subItem.url}
+                            to={safeUrl(subItem.url)}
                             className={`block px-4 py-2.5 text-sm transition-colors ${
                               location.pathname === subItem.url
                                 ? 'bg-brand-blue-light text-brand-blue font-semibold'
@@ -156,7 +157,7 @@ export const Header: React.FC = () => {
           {navItems.map((item) => (
             <div key={item.id} className="border-b border-slate-100 pb-2">
               <Link
-                to={item.url}
+                to={safeUrl(item.url)}
                 className="block py-2 text-base font-semibold text-slate-800 hover:text-brand-blue"
               >
                 {item.label}
@@ -166,7 +167,7 @@ export const Header: React.FC = () => {
                   {item.children.map(subItem => (
                     <Link
                       key={subItem.id}
-                      to={subItem.url}
+                      to={safeUrl(subItem.url)}
                       className="block py-1 text-sm text-slate-600 hover:text-brand-blue"
                     >
                       {subItem.label}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Book, Search, Filter, ExternalLink, Download, Play, Sparkles, BookOpen, AlertCircle } from 'lucide-react';
 import { dataStore } from '../lib/storage';
+import { safeUrl } from '../lib/safeUrl';
 import { Resource, AITool } from '../types';
 import { FreeGiftModal } from '../components/public/FreeGiftModal';
 import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
@@ -192,7 +193,7 @@ export const UpskillingLibraryPage: React.FC = () => {
                     <span className="text-xs font-bold text-slate-500">{course.price || 'Free Access'}</span>
                     {course.external_url && (
                       <a
-                        href={course.external_url}
+                        href={safeUrl(course.external_url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-brand-blue hover:underline text-xs font-semibold"
@@ -297,7 +298,7 @@ export const UpskillingLibraryPage: React.FC = () => {
                     {tool.requires_premium ? 'Freemium / Premium' : 'Free / Available'}
                   </span>
                   <a
-                    href={tool.website_url}
+                    href={safeUrl(tool.website_url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-xs font-bold text-brand-dark hover:text-brand-blue transition-colors"

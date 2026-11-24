@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Clock, Share2, Twitter, Linkedin, MessageCircle, U
 import { dataStore } from '../lib/storage';
 import { BlogPost } from '../types';
 import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
+import { SafeHtml } from '../components/common/SafeHtml';
 import { getYouTubeVideoId } from '../utils/youtube';
 
 export const BlogPostPage: React.FC = () => {
@@ -132,9 +133,9 @@ export const BlogPostPage: React.FC = () => {
 
         {/* Article Body Content */}
         {isHtmlContent ? (
-          <div
+          <SafeHtml
             className="prose prose-lg max-w-none text-slate-800 leading-relaxed text-base space-y-6 [&>p]:mb-5 [&>p]:leading-relaxed [&>h1]:font-serif [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-brand-dark [&>h1]:mt-8 [&>h2]:font-serif [&>h2]:text-2xl sm:[&>h2]:text-3xl [&>h2]:font-bold [&>h2]:text-brand-dark [&>h2]:mt-8 [&>h2]:mb-3 [&>h3]:font-serif [&>h3]:text-xl sm:[&>h3]:text-2xl [&>h3]:font-bold [&>h3]:text-brand-dark [&>h3]:mt-6 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:space-y-2 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:space-y-2 [&>blockquote]:border-l-4 [&>blockquote]:border-brand-blue [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:text-slate-700 [&>blockquote]:my-6 [&>img]:rounded-2xl [&>img]:shadow-md [&>img]:my-8 [&>img]:w-full [&>figure]:my-8 [&>figcaption]:text-center [&>figcaption]:text-xs [&>figcaption]:text-slate-500 [&>figcaption]:mt-2 [&>a]:text-brand-blue [&>a]:underline [&>table]:w-full [&>table]:border-collapse [&>table]:my-6 [&>th]:bg-slate-100 [&>th]:p-3 [&>th]:border [&>th]:border-slate-300 [&>td]:p-3 [&>td]:border [&>td]:border-slate-300 [&>strong]:font-bold [&>strong]:text-brand-dark"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            html={post.content}
           />
         ) : (
           <div className="prose prose-lg max-w-none text-slate-800 space-y-6 text-base leading-relaxed">

@@ -37,6 +37,30 @@ import {
 } from '../seedData';
 
 import { supabase, isSupabaseConfigured } from '../supabase';
+import { sanitizeHtml, looksLikeHtml } from '../sanitizeHtml';
+
+// Save-time sanitization (defence in depth; rendering also sanitizes via <SafeHtml>).
+// Only HTML content is touched: plain-text/markdown content is left as-is so that
+// characters like "&" are not entity-encoded into the stored text.
+const HTML_SECTION_TYPES = new Set(['rich_text', 'text_block']);
+
+function sanitizeBlogPost(post: BlogPost): BlogPost {
+  return looksLikeHtml(post.content) ? { ...post, content: sanitizeHtml(post.content) } : post;
+}
+
+function sanitizePage(page: Page): Page {
+  if (!Array.isArray(page.sections)) return page;
+  return {
+    ...page,
+    sections: page.sections.map(section => {
+      if (!HTML_SECTION_TYPES.has(section.type) || !section.data) return section;
+      const data = { ...section.data };
+      if (looksLikeHtml(data.html)) data.html = sanitizeHtml(data.html);
+      if (looksLikeHtml(data.content)) data.content = sanitizeHtml(data.content);
+      return { ...section, data };
+    })
+  };
+}
 
 const STORAGE_KEYS = {
   SETTINGS: 'thedl_site_settings',
@@ -278,7 +302,7 @@ export const dataStore = {
   },
 
   saveBlogPost: async (post: BlogPost): Promise<void> => {
-    await saveRow('blog_posts', STORAGE_KEYS.BLOG, initialBlogPosts, post, 'slug');
+    await saveRow('blog_posts', STORAGE_KEYS.BLOG, initialBlogPosts, sanitizeBlogPost(post), 'slug');
   },
 
   deleteBlogPost: async (id: string): Promise<void> => {
@@ -294,7 +318,7 @@ export const dataStore = {
     let updated = 0;
     let skipped = 0;
 
-    for (const post of newPosts) {
+    for (const post of newPosts.map(sanitizeBlogPost)) {
       const existingIndex = list.findIndex(p =>
         (post.wp_post_id && p.wp_post_id && String(p.wp_post_id) === String(post.wp_post_id)) ||
         (post.slug && p.slug.toLowerCase() === post.slug.toLowerCase()) ||
@@ -499,7 +523,7 @@ export const dataStore = {
   savePage: async (page: Page): Promise<void> => {
     const now = new Date().toISOString();
     await saveRow('pages', STORAGE_KEYS.PAGES, [], {
-      ...page,
+      ...sanitizePage(page),
       created_at: page.created_at || now,
       updated_at: now
     }, 'slug');
@@ -518,7 +542,7 @@ export const dataStore = {
     let updated = 0;
     let skipped = 0;
 
-    for (const page of newPages) {
+    for (const page of newPages.map(sanitizePage)) {
       const existingIndex = list.findIndex(p =>
         (page.wp_page_id && p.wp_page_id && String(p.wp_page_id) === String(page.wp_page_id)) ||
         (page.slug && p.slug.toLowerCase() === page.slug.toLowerCase()) ||

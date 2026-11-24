@@ -8,6 +8,8 @@ import { TestimonialsSection } from '../components/public/TestimonialsSection';
 import { FinalCTA } from '../components/public/FinalCTA';
 import { ArrowRight } from 'lucide-react';
 import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
+import { SafeHtml } from '../components/common/SafeHtml';
+import { safeUrl } from '../lib/safeUrl';
 
 export const DynamicCustomPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -82,7 +84,7 @@ function renderSection(section: PageSection) {
             {data.buttonText && (
               <div className="pt-6">
                 <Link
-                  to={data.buttonUrl || "/contact"}
+                  to={safeUrl(data.buttonUrl, "/contact")}
                   className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-7 py-3 rounded-lg text-sm font-semibold transition-all shadow-md"
                 >
                   <span>{data.buttonText}</span>
@@ -105,9 +107,9 @@ function renderSection(section: PageSection) {
             </h2>
           )}
           {isHtml ? (
-            <div
+            <SafeHtml
               className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-base space-y-4 [&>p]:mb-4 [&>h2]:font-serif [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-brand-dark [&>h2]:mt-6 [&>h3]:font-serif [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-brand-dark [&>h3]:mt-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>blockquote]:border-l-4 [&>blockquote]:border-brand-blue [&>blockquote]:pl-4 [&>blockquote]:italic [&>img]:rounded-xl [&>img]:shadow-md [&>img]:my-6 [&>a]:text-brand-blue [&>a]:underline"
-              dangerouslySetInnerHTML={{ __html: data.html || data.content }}
+              html={data.html || data.content}
             />
           ) : (
             <div className="text-slate-700 leading-relaxed text-base space-y-4">

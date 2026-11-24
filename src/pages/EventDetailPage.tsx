@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, CheckCircle2, ShieldCheck, ArrowRight, CreditCard, ArrowLeft } from 'lucide-react';
 import { dataStore } from '../lib/storage';
+import { safeUrl } from '../lib/safeUrl';
 import { Event } from '../types';
 import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
 
@@ -64,7 +65,7 @@ export const EventDetailPage: React.FC = () => {
       setIsRegistered(true);
 
       // Auto redirect to WhatsApp community as instructed in PDF 2
-      const redirectUrl = event?.whatsapp_redirect_url || "https://chat.whatsapp.com/BeYzmeB5lUP8TXqUwMNWlD";
+      const redirectUrl = safeUrl(event?.whatsapp_redirect_url, "https://chat.whatsapp.com/BeYzmeB5lUP8TXqUwMNWlD");
       setTimeout(() => {
         window.location.href = redirectUrl;
       }, 2000);
@@ -204,7 +205,7 @@ export const EventDetailPage: React.FC = () => {
                   </p>
                   <div className="pt-4">
                     <a
-                      href={event.whatsapp_redirect_url}
+                      href={safeUrl(event.whatsapp_redirect_url)}
                       className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg text-xs font-bold"
                     >
                       <span>Click here if not redirected automatically</span>

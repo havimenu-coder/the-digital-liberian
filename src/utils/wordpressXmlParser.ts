@@ -1,4 +1,5 @@
 import { BlogPost, Page, PageSection } from '../types';
+import { sanitizeHtml } from '../lib/sanitizeHtml';
 import { convertWordPressContentToSections } from './wordpressImporter';
 
 export interface ParsedWxrPage {
@@ -124,18 +125,9 @@ export function sanitizeArticleContent(html: string): string {
     doc.querySelectorAll(tag).forEach(el => el.remove());
   });
 
-  // Remove dangerous attributes
-  const allElements = doc.querySelectorAll('*');
-  allElements.forEach(el => {
-    for (let i = el.attributes.length - 1; i >= 0; i--) {
-      const attr = el.attributes[i];
-      if (attr.name.startsWith('on') || attr.value.trim().toLowerCase().startsWith('javascript:')) {
-        el.removeAttribute(attr.name);
-      }
-    }
-  });
-
-  return doc.body.innerHTML.trim();
+  // Security: dangerous attributes, URLs and tags are removed by the shared
+  // allowlist sanitizer (the old on*/javascript: blocklist missed encoded forms).
+  return sanitizeHtml(doc.body.innerHTML).trim();
 }
 
 /**

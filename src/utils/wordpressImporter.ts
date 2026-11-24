@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../lib/sanitizeHtml';
 import { PageSection, SectionType } from '../types';
 import { getYouTubeVideoId } from './youtube';
 
@@ -57,7 +58,9 @@ export function sanitizeWordPressHtml(html: string): string {
     doc.querySelectorAll(sel).forEach(el => el.remove());
   });
 
-  return doc.body.innerHTML.trim();
+  // Security: the selector list above is cosmetic clean-up only.
+  // All script-capable markup is removed by the shared allowlist sanitizer.
+  return sanitizeHtml(doc.body.innerHTML).trim();
 }
 
 /**
@@ -317,43 +320,25 @@ export function parseWordPressHtml(html: string, fallbackUrl?: string): WordPres
 }
 
 /**
- * Fetch a URL via direct fetch or CORS proxy fallback
+ * Fetch a URL directly from the browser.
+ *
+ * Security: third-party CORS proxies (allorigins.win, corsproxy.io) were removed.
+ * They could read every imported URL and tamper with the returned HTML.
+ * WordPress REST API endpoints normally allow cross-origin reads; for sites that
+ * don't, the editor can paste the page HTML or JSON instead.
  */
-async function fetchWithCorsFallback(targetUrl: string): Promise<string> {
-  // Attempt 1: Direct fetch
+async function fetchDirect(targetUrl: string): Promise<string> {
   try {
-    const directRes = await fetch(targetUrl, {
+    const res = await fetch(targetUrl, {
       headers: {
         'Accept': 'application/json, text/html, */*'
       }
     });
-    if (directRes.ok) {
-      return await directRes.text();
-    }
-  } catch (err) {
-    // CORS or network error, proceed to fallback proxies
-  }
-
-  // Attempt 2: AllOrigins proxy
-  try {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-    const res = await fetch(proxyUrl);
     if (res.ok) {
       return await res.text();
     }
-  } catch (err) {
-    // Try next proxy
-  }
-
-  // Attempt 3: CorsProxy.io
-  try {
-    const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`;
-    const res = await fetch(proxyUrl);
-    if (res.ok) {
-      return await res.text();
-    }
-  } catch (err) {
-    // All proxies failed
+  } catch {
+    // CORS or network error – fall through to the guidance below
   }
 
   throw new Error(`Unable to fetch ${targetUrl}. The external website may have blocked cross-origin requests. You can paste the page HTML or JSON directly instead.`);
@@ -379,7 +364,7 @@ export async function importWordPressFromUrl(pageUrl: string): Promise<WordPress
 
   // 1. If it's already a direct WP REST API URL (e.g. .../wp-json/wp/v2/pages...)
   if (trimmed.includes('/wp-json/wp/v2/')) {
-    const text = await fetchWithCorsFallback(trimmed);
+    const text = await fetchDirect(trimmed);
     const json = JSON.parse(text);
     const item = Array.isArray(json) ? json[0] : json;
     if (!item) throw new Error('No items found in the WordPress REST API response');
@@ -390,7 +375,7 @@ export async function importWordPressFromUrl(pageUrl: string): Promise<WordPress
   if (slug) {
     try {
       const apiUrl = `${origin}/wp-json/wp/v2/pages?slug=${slug}&_embed`;
-      const resText = await fetchWithCorsFallback(apiUrl);
+      const resText = await fetchDirect(apiUrl);
       const json = JSON.parse(resText);
       if (Array.isArray(json) && json.length > 0) {
         return parseWordPressRestItem(json[0], origin);
@@ -401,7 +386,7 @@ export async function importWordPressFromUrl(pageUrl: string): Promise<WordPress
 
     try {
       const postApiUrl = `${origin}/wp-json/wp/v2/posts?slug=${slug}&_embed`;
-      const resText = await fetchWithCorsFallback(postApiUrl);
+      const resText = await fetchDirect(postApiUrl);
       const json = JSON.parse(resText);
       if (Array.isArray(json) && json.length > 0) {
         return parseWordPressRestItem(json[0], origin);
@@ -412,7 +397,7 @@ export async function importWordPressFromUrl(pageUrl: string): Promise<WordPress
   }
 
   // 3. Fallback: Fetch raw HTML and parse DOM
-  const html = await fetchWithCorsFallback(trimmed);
+  const html = await fetchDirect(trimmed);
   return parseWordPressHtml(html, trimmed);
 }
 
