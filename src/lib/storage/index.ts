@@ -104,13 +104,55 @@ function saveLocal<T>(key: string, value: T): void {
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-async function getRows<T>(table: string, key: string, fallback: T[]): Promise<T[]> {
+// ---------------------------------------------------------------------------
+// Read fallback: when Supabase cannot serve a PUBLIC read (missing table,
+// network error, ...), show the built-in website content instead of failing.
+// Writes and submissions never fall back - they always report their errors.
+// ---------------------------------------------------------------------------
+const warnedReadFailures = new Set<string>();
+
+function builtInContentFallback<T>(source: string, reason: string, fallback: T): T {
+  if (!warnedReadFailures.has(source)) {
+    warnedReadFailures.add(source);
+    console.warn(`[dataStore] Could not load "${source}" from Supabase (${reason}). Showing built-in content instead.`);
+  }
+  // Copy so callers can never mutate the shared built-in data.
+  return structuredClone(fallback);
+}
+
+const errorMessage = (e: unknown) => (e instanceof Error ? e.message : String(e));
+
+interface ReadOptions {
+  /** Public content: use built-in content when the read fails (default). */
+  fallbackOnError?: boolean;
+}
+
+async function getRows<T>(table: string, key: string, fallback: T[], { fallbackOnError = true }: ReadOptions = {}): Promise<T[]> {
   if (isSupabaseConfigured && supabase) {
-    const { data, error } = await supabase.from(table).select('*');
-    if (error) throw new Error(`Failed to load ${table}: ${error.message}`);
-    return (data ?? []) as T[];
+    let result: { data: unknown; error: { message: string } | null };
+    try {
+      result = await supabase.from(table).select('*');
+    } catch (e) {
+      result = { data: null, error: { message: errorMessage(e) } };
+    }
+    if (result.error) {
+      if (!fallbackOnError) throw new Error(`Failed to load ${table}: ${result.error.message}`);
+      return builtInContentFallback(table, result.error.message, fallback);
+    }
+    return (result.data ?? []) as T[];
   }
   return loadLocal<T[]>(key, fallback);
+}
+
+const STRICT: ReadOptions = { fallbackOnError: false };
+
+/** Runs a Supabase query and normalises thrown errors into `{ error }`. */
+async function runQuery<D>(query: () => PromiseLike<{ data: D; error: { message: string } | null }>) {
+  try {
+    return await query();
+  } catch (e) {
+    return { data: null as D | null, error: { message: errorMessage(e) } };
+  }
 }
 
 async function saveRow<T extends { id?: string }>(
@@ -156,8 +198,9 @@ export const dataStore = {
   // 1. Site Settings
   getSiteSettings: async (): Promise<SiteSettings> => {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from('site_settings').select('*').limit(1).maybeSingle();
-      if (error) throw new Error(`Failed to load site settings: ${error.message}`);
+      const client = supabase;
+      const { data, error } = await runQuery(() => client.from('site_settings').select('*').limit(1).maybeSingle());
+      if (error) return builtInContentFallback('site_settings', error.message, initialSiteSettings);
       if (data) {
         return {
           ...initialSiteSettings,
@@ -187,8 +230,9 @@ export const dataStore = {
   // 2. Homepage Data
   getHomepageData: async (): Promise<HomepageData> => {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from('homepage_data').select('*').limit(1).maybeSingle();
-      if (error) throw new Error(`Failed to load homepage data: ${error.message}`);
+      const client = supabase;
+      const { data, error } = await runQuery(() => client.from('homepage_data').select('*').limit(1).maybeSingle());
+      if (error) return builtInContentFallback('homepage_data', error.message, initialHomepageData);
       if (data) return data as HomepageData;
     }
     const data = loadLocal<HomepageData>(STORAGE_KEYS.HOMEPAGE, initialHomepageData);
@@ -216,9 +260,10 @@ export const dataStore = {
   // 3. Navigation
   getNavigation: async (): Promise<NavigationItem[]> => {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from('navigation_items').select('*').order('display_order', { ascending: true });
-      if (error) throw new Error(`Failed to load navigation: ${error.message}`);
-      return (data ?? []).map(item => ({ ...item, order: item.display_order })) as NavigationItem[];
+      const client = supabase;
+      const { data, error } = await runQuery(() => client.from('navigation_items').select('*').order('display_order', { ascending: true }));
+      if (error) return builtInContentFallback('navigation_items', error.message, initialNavigation);
+      return (data ?? []).map((item: any) => ({ ...item, order: item.display_order })) as NavigationItem[];
     }
     return loadLocal<NavigationItem[]>(STORAGE_KEYS.NAVIGATION, initialNavigation);
   },
@@ -313,7 +358,8 @@ export const dataStore = {
     newPosts: BlogPost[],
     overwriteDuplicates: boolean = false
   ): Promise<{ added: number; updated: number; skipped: number }> => {
-    const list = await getRows<BlogPost>('blog_posts', STORAGE_KEYS.BLOG, initialBlogPosts);
+    // STRICT: an import must never treat built-in content as database content.
+    const list = await getRows<BlogPost>('blog_posts', STORAGE_KEYS.BLOG, initialBlogPosts, STRICT);
     let added = 0;
     let updated = 0;
     let skipped = 0;
@@ -369,20 +415,22 @@ export const dataStore = {
   // Event photo galleries
   getEventGalleries: async (): Promise<EventGallery[]> => {
     if (isSupabaseConfigured && supabase) {
-      const { data: galleries, error } = await supabase
-        .from('event_galleries').select('*').order('event_date', { ascending: false });
-      if (error) throw new Error(`Failed to load event galleries: ${error.message}`);
+      const client = supabase;
+      const { data: galleries, error } = await runQuery(() => client
+        .from('event_galleries').select('*').order('event_date', { ascending: false }));
+      // No built-in galleries exist, so a failed read simply shows none.
+      if (error) return builtInContentFallback('event_galleries', error.message, [] as EventGallery[]);
       if (!galleries?.length) return [];
 
-      const galleryIds = galleries.map(gallery => gallery.id);
-      const { data: photos, error: photoError } = await supabase
+      const galleryIds = galleries.map((gallery: any) => gallery.id);
+      const { data: photos, error: photoError } = await runQuery(() => client
         .from('event_gallery_photos').select('*').in('gallery_id', galleryIds)
-        .order('display_order', { ascending: true });
-      if (photoError) throw new Error(`Failed to load event gallery photos: ${photoError.message}`);
+        .order('display_order', { ascending: true }));
+      if (photoError) builtInContentFallback('event_gallery_photos', photoError.message, null);
 
-      return galleries.map(gallery => ({
+      return galleries.map((gallery: any) => ({
         ...gallery,
-        photos: (photos ?? []).filter(photo => photo.gallery_id === gallery.id)
+        photos: (photos ?? []).filter((photo: any) => photo.gallery_id === gallery.id)
       })) as EventGallery[];
     }
     return loadLocal<EventGallery[]>(STORAGE_KEYS.GALLERIES, []);
@@ -537,7 +585,8 @@ export const dataStore = {
     newPages: Page[],
     overwriteDuplicates: boolean = false
   ): Promise<{ added: number; updated: number; skipped: number }> => {
-    const list = await getRows<Page>('pages', STORAGE_KEYS.PAGES, []);
+    // STRICT: an import must never treat a failed read as an empty table.
+    const list = await getRows<Page>('pages', STORAGE_KEYS.PAGES, [], STRICT);
     let added = 0;
     let updated = 0;
     let skipped = 0;
@@ -580,7 +629,8 @@ export const dataStore = {
 
   // 15. Form Submissions
   getSubmissions: async (): Promise<FormSubmission[]> => {
-    return getRows<FormSubmission>('form_submissions', STORAGE_KEYS.SUBMISSIONS, []);
+    // STRICT (admin-only): a failed read must show an error, not an empty inbox.
+    return getRows<FormSubmission>('form_submissions', STORAGE_KEYS.SUBMISSIONS, [], STRICT);
   },
 
   saveSubmission: async (submission: Omit<FormSubmission, 'id' | 'created_at' | 'status'>): Promise<FormSubmission> => {
@@ -593,6 +643,13 @@ export const dataStore = {
       if (error) throw new Error(`Failed to submit form: ${error.message}`);
       window.dispatchEvent(new CustomEvent('thedl_storage_update', { detail: { key: STORAGE_KEYS.SUBMISSIONS } }));
       return data as FormSubmission;
+    }
+
+    // Never pretend a submission was saved on the live site: without Supabase,
+    // localStorage would only keep it in the visitor's own browser.
+    // (Local development keeps the localStorage behaviour for testing.)
+    if (import.meta.env.PROD) {
+      throw new Error('Form submissions are unavailable because the database is not configured.');
     }
 
     const list = loadLocal<FormSubmission[]>(STORAGE_KEYS.SUBMISSIONS, []);
@@ -628,7 +685,8 @@ export const dataStore = {
 
   // 16. Media Items
   getMediaItems: async (): Promise<MediaItem[]> => {
-    return getRows<MediaItem>('media_items', STORAGE_KEYS.MEDIA, initialMediaItems);
+    // STRICT (admin-only): built-in placeholders must not appear as uploaded media.
+    return getRows<MediaItem>('media_items', STORAGE_KEYS.MEDIA, initialMediaItems, STRICT);
   },
 
   saveMediaItem: async (item: MediaItem): Promise<void> => {

@@ -17,11 +17,18 @@ export const DynamicCustomPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!slug) return;
-    dataStore.getPageBySlug(slug).then((p: Page | undefined) => {
-      setPage(p?.published ? p : null);
+    if (!slug) {
       setLoading(false);
-    });
+      return;
+    }
+    setLoading(true);
+    dataStore.getPageBySlug(slug)
+      .then((p: Page | undefined) => setPage(p?.published ? p : null))
+      .catch(error => {
+        console.error('Failed to load page', error);
+        setPage(null);
+      })
+      .finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) {

@@ -11,11 +11,14 @@ export const SolutionDetailPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    dataStore.getServices().then(services => {
-      const found = services.find(s => s.slug === slug);
-      setService(found || null);
-      setLoading(false);
-    });
+    setLoading(true);
+    dataStore.getServices()
+      .then(services => setService(services.find(s => s.slug === slug) || null))
+      .catch(error => {
+        console.error('Failed to load solution', error);
+        setService(null);
+      })
+      .finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) {

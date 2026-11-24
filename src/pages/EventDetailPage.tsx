@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, CheckCircle2, ShieldCheck, ArrowRight, CreditCard, ArrowLeft } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { safeUrl } from '../lib/safeUrl';
+import { FormSubmitError, FORM_SUBMIT_ERROR_MESSAGE } from '../components/common/FormSubmitError';
 import { Event } from '../types';
 import { YouTubeEmbed } from '../components/common/YouTubeEmbed';
 
@@ -27,13 +28,20 @@ export const EventDetailPage: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
-    dataStore.getEvents().then(events => {
-      const found = events.find(e => e.slug === slug);
-      setEvent(found || events[0]);
-      setLoading(false);
-    });
+    setLoading(true);
+    dataStore.getEvents()
+      .then(events => {
+        const found = events.find(e => e.slug === slug);
+        setEvent(found || events[0] || null);
+      })
+      .catch(error => {
+        console.error('Failed to load event', error);
+        setEvent(null);
+      })
+      .finally(() => setLoading(false));
   }, [slug]);
 
   const handleExpectationToggle = (item: string) => {
@@ -51,6 +59,7 @@ export const EventDetailPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
     try {
       await dataStore.saveSubmission({
@@ -72,6 +81,7 @@ export const EventDetailPage: React.FC = () => {
 
     } catch (err) {
       console.error('Registration failed', err);
+      setSubmitError(FORM_SUBMIT_ERROR_MESSAGE);
       setIsSubmitting(false);
     }
   };
@@ -84,7 +94,17 @@ export const EventDetailPage: React.FC = () => {
     );
   }
 
-  if (!event) return null;
+  if (!event) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-24 text-center">
+        <h1 className="font-serif text-3xl font-bold text-brand-dark mb-4">Event not found</h1>
+        <p className="text-slate-600 mb-6">This event may have ended, moved or is not available right now.</p>
+        <Link to="/events" className="bg-brand-blue text-white px-6 py-2.5 rounded font-semibold text-sm">
+          View all events
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white min-h-screen">
@@ -370,6 +390,8 @@ export const EventDetailPage: React.FC = () => {
                       className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-brand-blue"
                     />
                   </div>
+
+                  <FormSubmitError message={submitError} />
 
                   <button
                     type="submit"

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Gift, Sparkles, CheckCircle, ArrowRight } from 'lucide-react';
 import { dataStore } from '../../lib/storage';
+import { FormSubmitError, FORM_SUBMIT_ERROR_MESSAGE } from '../common/FormSubmitError';
 
 interface FreeGiftModalProps {
   isOpen: boolean;
@@ -16,12 +17,14 @@ export const FreeGiftModal: React.FC<FreeGiftModalProps> = ({ isOpen, onClose })
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
     try {
       // Save submission to dataStore
@@ -48,7 +51,8 @@ export const FreeGiftModal: React.FC<FreeGiftModalProps> = ({ isOpen, onClose })
       }, 1500);
 
     } catch (err) {
-      console.error(err);
+      console.error('Failed to submit free gift form', err);
+      setSubmitError(FORM_SUBMIT_ERROR_MESSAGE);
       setIsSubmitting(false);
     }
   };
@@ -152,6 +156,8 @@ export const FreeGiftModal: React.FC<FreeGiftModalProps> = ({ isOpen, onClose })
                   placeholder="e.g. 07030413987"
                 />
               </div>
+
+              <FormSubmitError message={submitError} />
 
               <div className="pt-2">
                 <button
