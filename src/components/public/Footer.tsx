@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Youtube, Facebook, Linkedin, Instagram, Twitter, Mail, Phone, ArrowUpRight } from 'lucide-react';
 import { dataStore } from '../../lib/storage';
+import { safeUrl } from '../../lib/safeUrl';
 import { SiteSettings } from '../../types';
 
 export const Footer: React.FC = () => {
@@ -25,13 +26,12 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-2 space-y-4">
             <Link to="/" className="inline-flex items-center group">
               <div className="h-12 sm:h-16 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
-                <img 
-                  src="/images/digital-librarian-logo.png" 
-                  alt="The Digital Librarian Logo" 
-                  className="h-12 sm:h-16 w-auto object-contain filter brightness-105"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/DIGITAL%20LIBRARIAN%20LOGO3x.png';
-                  }}
+                <img
+                  src="/images/brand/didigital-librarian-logo-dark.png"
+                  alt="The Digital Librarian Logo"
+                  width={666}
+                  height={240}
+                  className="h-12 sm:h-16 w-auto object-contain"
                 />
               </div>
             </Link>
@@ -44,7 +44,7 @@ export const Footer: React.FC = () => {
             <div className="pt-2 space-y-1.5 text-xs text-slate-300">
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-brand-blue" />
-                <a href={settings?.whatsapp_link} target="_blank" rel="noopener noreferrer" className="hover:text-brand-blue transition-colors">
+                <a href={safeUrl(settings?.whatsapp_link)} target="_blank" rel="noopener noreferrer" className="hover:text-brand-blue transition-colors">
                   {settings?.contact_phone || "07030413987"} (WhatsApp Chat)
                 </a>
               </div>
@@ -62,7 +62,7 @@ export const Footer: React.FC = () => {
                 Follow Me and I&apos;ll Follow Back Immediately 👍🏽
               </h2>
               <a
-                href={settings?.social_links.youtube || 'https://youtube.com/@thedigitallibr'}
+                href={safeUrl(settings?.social_links.youtube, 'https://youtube.com/@thedigitallibr')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-red-700"
@@ -71,22 +71,22 @@ export const Footer: React.FC = () => {
                 Subscribe on YouTube
               </a>
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                <a href={settings?.social_links.facebook_page || 'https://www.facebook.com/thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on Facebook" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                <a href={safeUrl(settings?.social_links.facebook_page, 'https://www.facebook.com/thedigitallibr')} target="_blank" rel="noopener noreferrer" aria-label="Follow on Facebook" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
                   <Facebook className="h-4 w-4" /> Facebook
                 </a>
-                <a href={settings?.social_links.instagram || 'https://www.instagram.com/thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                <a href={safeUrl(settings?.social_links.instagram, 'https://www.instagram.com/thedigitallibr')} target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
                   <Instagram className="h-4 w-4" /> Instagram
                 </a>
-                <a href={settings?.social_links.tiktok || 'https://tiktok.com/@thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on TikTok" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                <a href={safeUrl(settings?.social_links.tiktok, 'https://tiktok.com/@thedigitallibr')} target="_blank" rel="noopener noreferrer" aria-label="Follow on TikTok" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
                   <span className="flex h-4 w-4 items-center justify-center font-bold">♪</span> TikTok
                 </a>
-                <a href={settings?.social_links.twitter || 'https://www.twitter.com/thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on Twitter / X" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                <a href={safeUrl(settings?.social_links.twitter, 'https://www.twitter.com/thedigitallibr')} target="_blank" rel="noopener noreferrer" aria-label="Follow on Twitter / X" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
                   <Twitter className="h-4 w-4" /> Twitter / X
                 </a>
-                <a href={settings?.social_links.linkedin || 'https://www.linkedin.com/in/thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on LinkedIn" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                <a href={safeUrl(settings?.social_links.linkedin, 'https://www.linkedin.com/in/thedigitallibr')} target="_blank" rel="noopener noreferrer" aria-label="Follow on LinkedIn" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
                   <Linkedin className="h-4 w-4" /> LinkedIn
                 </a>
-                <a href={settings?.social_links.threads || 'https://www.threads.net/@thedigitallibr'} target="_blank" rel="noopener noreferrer" aria-label="Follow on Threads" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+                <a href={safeUrl(settings?.social_links.threads, 'https://www.threads.net/@thedigitallibr')} target="_blank" rel="noopener noreferrer" aria-label="Follow on Threads" className="inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white">
                   <span className="flex h-4 w-4 items-center justify-center font-bold">@</span> Threads
                 </a>
               </div>
@@ -185,7 +185,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a 
-                  href={settings?.whatsapp_community_link} 
+                  href={safeUrl(settings?.whatsapp_community_link)} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="hover:text-brand-blue transition-colors flex items-center gap-1"

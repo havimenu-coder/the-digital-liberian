@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { dataStore } from '../../lib/storage';
+import { safeUrl } from '../../lib/safeUrl';
 import { HomepageData } from '../../types';
 
 export const FinalCTA: React.FC = () => {
@@ -36,7 +37,7 @@ export const FinalCTA: React.FC = () => {
         {/* Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
           <Link
-            to={cta?.primary_btn_url || "/contact"}
+            to={safeUrl(cta?.primary_btn_url, "/contact")}
             className="inline-flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-8 py-3.5 rounded-md text-base font-semibold transition-all shadow-lg active:scale-95"
           >
             <span>{cta?.primary_btn_text || "Talk to TheDL"}</span>
@@ -44,7 +45,7 @@ export const FinalCTA: React.FC = () => {
           </Link>
 
           <Link
-            to={cta?.secondary_btn_url || "/solutions"}
+            to={safeUrl(cta?.secondary_btn_url, "/solutions")}
             className="inline-flex items-center justify-center border border-white/80 hover:bg-white hover:text-brand-dark text-white px-8 py-3.5 rounded-md text-base font-semibold transition-all shadow-sm active:scale-95"
           >
             <span>{cta?.secondary_btn_text || "Explore Solutions"}</span>

@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Play, ArrowRight, BookOpen, GraduationCap, Video, Presentation, Library, Sparkles, X } from 'lucide-react';
+import { Play, ArrowRight, BookOpen, GraduationCap, Video, Presentation, Library, Sparkles, X, Youtube, ExternalLink } from 'lucide-react';
 import { dataStore } from '../../lib/storage';
+import { safeUrl } from '../../lib/safeUrl';
 import { HomepageData } from '../../types';
-import { getYouTubeEmbedUrl } from '../../utils/youtube';
+import { getYouTubeEmbedUrl, getYouTubeVideoId } from '../../utils/youtube';
+import {
+  FEATURED_VIDEO,
+  LATEST_VIDEOS,
+  YOUTUBE_CHANNEL,
+  findChannelVideo,
+  youtubeThumbnailUrl,
+  youtubeWatchUrl
+} from '../../lib/youtubeChannel';
+
+const formatVideoDate = (isoDate: string) =>
+  new Date(`${isoDate}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
 export const UpskillingSection: React.FC = () => {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -14,6 +26,13 @@ export const UpskillingSection: React.FC = () => {
   }, []);
 
   const featured = homeData?.featured_learning;
+
+  // Featured video: the CMS video if set, otherwise the confirmed channel video.
+  // Title, thumbnail and summary come from the real YouTube video, not template copy.
+  const featuredVideoId = getYouTubeVideoId(featured?.video_url) || FEATURED_VIDEO.id;
+  const channelVideo = findChannelVideo(featuredVideoId);
+  const videoTitle = channelVideo?.title || featured?.title || FEATURED_VIDEO.title;
+  const videoSummary = channelVideo?.summary || featured?.description || '';
 
   const categories = [
     { label: "Blog", href: "/blog", icon: BookOpen },
@@ -76,9 +95,9 @@ export const UpskillingSection: React.FC = () => {
             <div className="lg:col-span-6 relative aspect-video bg-blue-950 flex items-center justify-center overflow-hidden group cursor-pointer"
                  onClick={() => setIsVideoModalOpen(true)}>
               <img
-                src={featured?.thumbnail_url || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"}
-                alt={featured?.title || "The Digital You Masterclass Preview"}
-                className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
+                src={youtubeThumbnailUrl(featuredVideoId)}
+                alt={`YouTube video thumbnail: ${videoTitle}`}
+                className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/30 to-transparent" />
               
@@ -96,20 +115,23 @@ export const UpskillingSection: React.FC = () => {
             {/* Video Description & Info */}
             <div className="lg:col-span-6 p-6 sm:p-10 space-y-4">
               <div className="inline-flex items-center gap-2 bg-brand-blue/20 text-brand-blue border border-brand-blue/40 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                {featured?.subtitle || "Featured Course / Masterclass"}
+                <Youtube className="w-3.5 h-3.5" />
+                <span>Featured on YouTube</span>
               </div>
 
               <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug">
-                {featured?.title || "The Digital You: Personal Branding, AI & Digital Presence Masterclass"}
+                {videoTitle}
               </h3>
 
-              <p className="text-sm text-slate-300 leading-relaxed font-normal">
-                {featured?.description || "A high-impact practical masterclass designed by Sylvester Ebhonu for educators, librarians, researchers and knowledge workers on building a credible digital identity, deploying AI tools for productivity, and positioning for global opportunities."}
-              </p>
+              {videoSummary && (
+                <p className="text-sm text-slate-300 leading-relaxed font-normal">
+                  {videoSummary}
+                </p>
+              )}
 
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <Link
-                  to={featured?.cta_url || "/upskilling-library"}
+                  to={safeUrl(featured?.cta_url, "/upskilling-library")}
                   className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue-hover text-white px-6 py-2.5 rounded-md text-sm font-semibold transition-all shadow-md active:scale-95"
                 >
                   <span>{featured?.cta_text || "Start Learning"}</span>
@@ -121,11 +143,61 @@ export const UpskillingSection: React.FC = () => {
                   className="inline-flex items-center gap-2 text-slate-300 hover:text-white text-sm font-semibold transition-colors py-2"
                 >
                   <Play className="w-4 h-4 text-brand-blue fill-current" />
-                  <span>Watch Trailer</span>
+                  <span>Watch Video</span>
                 </button>
               </div>
             </div>
 
+          </div>
+        </div>
+
+        {/* Latest videos from the official YouTube channel */}
+        <div className="mt-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-brand-dark tracking-tight">
+              Latest from our YouTube channel
+            </h3>
+            <a
+              href={YOUTUBE_CHANNEL.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue hover:text-brand-dark transition-colors"
+            >
+              <span>Visit {YOUTUBE_CHANNEL.handle}</span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {LATEST_VIDEOS.map(video => (
+              <a
+                key={video.id}
+                href={youtubeWatchUrl(video.id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group bg-white rounded-xl overflow-hidden border border-slate-200 shadow-card hover:shadow-card-hover hover:border-brand-blue transition-all"
+              >
+                <div className="relative aspect-video bg-brand-dark overflow-hidden">
+                  <img
+                    src={youtubeThumbnailUrl(video.id)}
+                    alt={`YouTube video thumbnail: ${video.title}`}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-brand-dark/10 group-hover:bg-brand-dark/25 transition-colors">
+                    <span className="w-12 h-12 rounded-full bg-brand-blue text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Play className="w-5 h-5 fill-current ml-0.5" />
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4 space-y-1.5">
+                  <p className="text-sm font-bold text-brand-dark leading-snug line-clamp-2 group-hover:text-brand-blue transition-colors">
+                    {video.title}
+                  </p>
+                  <p className="text-xs text-slate-500">{formatVideoDate(video.publishedAt)}</p>
+                </div>
+              </a>
+            ))}
           </div>
         </div>
 
@@ -137,7 +209,7 @@ export const UpskillingSection: React.FC = () => {
           <div className="relative w-full max-w-4xl bg-brand-dark rounded-2xl overflow-hidden shadow-2xl border border-blue-900">
             <div className="flex items-center justify-between p-4 border-b border-blue-900/60 bg-brand-dark">
               <span className="font-serif font-bold text-white text-base">
-                {featured?.title || "The Digital You Masterclass Trailer"}
+                {videoTitle}
               </span>
               <button
                 onClick={() => setIsVideoModalOpen(false)}
@@ -149,8 +221,8 @@ export const UpskillingSection: React.FC = () => {
             <div className="relative aspect-video w-full bg-black">
               <iframe
                 className="w-full h-full"
-                src={featured?.video_url ? getYouTubeEmbedUrl(featured.video_url, { autoplay: true }) : "https://www.youtube-nocookie.com/embed/CoRkktaf1DI?autoplay=1"}
-                title={featured?.title || "The Digital Librarian Masterclass"}
+                src={getYouTubeEmbedUrl(featuredVideoId, { autoplay: true }) || undefined}
+                title={videoTitle}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />

@@ -19,8 +19,10 @@ export default {
         }
       },
       fontFamily: {
-        serif: ['Newsreader', 'Georgia', 'serif'],
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        // Site-wide sans-serif system (Calibri-style). `font-serif` is intentionally
+        // mapped to the same stack so existing heading classes render sans-serif.
+        sans: ['Calibri', 'Carlito', '"Segoe UI"', 'system-ui', '-apple-system', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+        serif: ['Calibri', 'Carlito', '"Segoe UI"', 'system-ui', '-apple-system', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
       },
       boxShadow: {
         'card': '0 2px 8px -2px rgba(0, 0, 63, 0.06), 0 1px 4px -1px rgba(0, 0, 63, 0.04)',
