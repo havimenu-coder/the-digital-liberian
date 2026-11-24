@@ -3,27 +3,29 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { dataStore } from '../../lib/storage';
 import { safeUrl } from '../../lib/safeUrl';
+import { resolveNavigation } from '../../lib/navigation';
 import { NavigationItem, SiteSettings } from '../../types';
 
 export const Header: React.FC = () => {
-  const [navItems, setNavItems] = useState<NavigationItem[]>([]);
+  // Start with the built-in menu so navigation is visible immediately, even
+  // before (or without) a successful CMS response.
+  const [navItems, setNavItems] = useState<NavigationItem[]>(() => resolveNavigation([]));
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
 
   const loadData = async () => {
-    const [nav, s] = await Promise.all([
+    // allSettled: a failure loading one source must never blank the menu.
+    const [navResult, settingsResult] = await Promise.allSettled([
       dataStore.getNavigation(),
       dataStore.getSiteSettings()
     ]);
-    setNavItems(nav
-      .filter(item => !item.url.startsWith('/admin'))
-      .map(item => ({
-        ...item,
-        children: item.children?.filter(child => !child.url.startsWith('/admin'))
-      })));
-    setSettings(s);
+    if (navResult.status === 'rejected') {
+      console.warn('Navigation could not be loaded from the CMS; using the default menu.', navResult.reason);
+    }
+    setNavItems(resolveNavigation(navResult.status === 'fulfilled' ? navResult.value : []));
+    if (settingsResult.status === 'fulfilled') setSettings(settingsResult.value);
   };
 
   useEffect(() => {
@@ -70,6 +72,13 @@ export const Header: React.FC = () => {
                   className="relative flex items-center group"
                   onMouseEnter={() => hasChildren && setActiveDropdown(item.id)}
                   onMouseLeave={() => hasChildren && setActiveDropdown(null)}
+                  onFocus={() => hasChildren && setActiveDropdown(item.id)}
+                  onBlur={(e) => {
+                    if (hasChildren && !e.currentTarget.contains(e.relatedTarget as Node | null)) setActiveDropdown(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') setActiveDropdown(null);
+                  }}
                 >
                   {/* Pipe divider before item (except first) */}
                   {idx > 0 && (
@@ -86,6 +95,8 @@ export const Header: React.FC = () => {
                       }`}
                       target={item.open_in_new_tab ? '_blank' : undefined}
                       rel={item.open_in_new_tab ? 'noopener noreferrer' : undefined}
+                      aria-haspopup={hasChildren ? 'true' : undefined}
+                      aria-expanded={hasChildren ? activeDropdown === item.id : undefined}
                     >
                       {item.label}
                       {hasChildren && (
@@ -94,8 +105,10 @@ export const Header: React.FC = () => {
                     </Link>
 
                     {/* Dropdown Menu */}
+                    {/* pt-2 wrapper bridges the gap so moving the mouse onto the menu doesn't close it */}
                     {hasChildren && activeDropdown === item.id && (
-                      <div className="absolute left-0 mt-1 w-64 bg-white rounded-lg shadow-xl border border-slate-100 py-2 z-50 animate-fadeIn">
+                      <div className="absolute left-0 top-full pt-2 z-50">
+                      <div className="w-64 bg-white rounded-lg shadow-xl border border-slate-100 py-2 animate-fadeIn">
                         {item.children?.map(subItem => (
                           <Link
                             key={subItem.id}
@@ -112,6 +125,7 @@ export const Header: React.FC = () => {
                             )}
                           </Link>
                         ))}
+                      </div>
                       </div>
                     )}
                   </div>
@@ -142,6 +156,7 @@ export const Header: React.FC = () => {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md text-slate-700 hover:text-brand-blue hover:bg-slate-100 focus:outline-none"
               aria-label="Toggle Navigation Menu"
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
