@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Phone, Mail, MessageSquare, CheckCircle, Send, ArrowRight, MessageCircle } from 'lucide-react';
 import { dataStore } from '../lib/storage';
+import { FormSubmitError, FORM_SUBMIT_ERROR_MESSAGE } from '../components/common/FormSubmitError';
 
 export const ContactPage: React.FC = () => {
   const location = useLocation();
@@ -19,6 +20,7 @@ export const ContactPage: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     const subjectParam = new URLSearchParams(location.search).get('subject');
@@ -39,6 +41,7 @@ export const ContactPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
     try {
       await dataStore.saveSubmission({
@@ -50,6 +53,7 @@ export const ContactPage: React.FC = () => {
       setIsSubmitting(false);
     } catch (err) {
       console.error('Failed to submit contact form', err);
+      setSubmitError(FORM_SUBMIT_ERROR_MESSAGE);
       setIsSubmitting(false);
     }
   };
@@ -186,6 +190,8 @@ export const ContactPage: React.FC = () => {
                     placeholder="Provide context regarding your library, event dates, research challenges, or media requirements..."
                   />
                 </div>
+
+                <FormSubmitError message={submitError} />
 
                 <button
                   type="submit"

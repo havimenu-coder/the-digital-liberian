@@ -14,7 +14,11 @@ export const BlogPostPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     dataStore.getBlogPosts().then(posts => {
       const current = posts.find(p => p.published && p.slug.toLowerCase() === slug.toLowerCase());
       setPost(current);
@@ -32,9 +36,12 @@ export const BlogPostPage: React.FC = () => {
         }
         setRelatedPosts(related);
       }
-
-      setLoading(false);
-    });
+    })
+      .catch(error => {
+        console.error('Failed to load blog post', error);
+        setPost(undefined);
+      })
+      .finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) {

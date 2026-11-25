@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Award, Users, Globe, BookOpen, CheckCircle, Heart, Star, Send, ArrowRight } from 'lucide-react';
 import { dataStore } from '../lib/storage';
 import { Honoree, TeamMember } from '../types';
+import { FormSubmitError, FORM_SUBMIT_ERROR_MESSAGE } from '../components/common/FormSubmitError';
 
 export const LibrarianSpotlightAfricaPage: React.FC = () => {
   const [honorees, setHonorees] = useState<Honoree[]>([]);
@@ -21,6 +22,8 @@ export const LibrarianSpotlightAfricaPage: React.FC = () => {
     nominatorEmail: ''
   });
   const [nominationSubmitted, setNominationSubmitted] = useState(false);
+  const [nominationSubmitting, setNominationSubmitting] = useState(false);
+  const [nominationError, setNominationError] = useState<string | null>(null);
 
   // Impact survey state
   const [survey, setSurvey] = useState({
@@ -32,6 +35,8 @@ export const LibrarianSpotlightAfricaPage: React.FC = () => {
     comments: ''
   });
   const [surveySubmitted, setSurveySubmitted] = useState(false);
+  const [surveySubmitting, setSurveySubmitting] = useState(false);
+  const [surveyError, setSurveyError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -45,20 +50,38 @@ export const LibrarianSpotlightAfricaPage: React.FC = () => {
 
   const handleNominateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await dataStore.saveSubmission({
-      form_type: 'lsa_nomination',
-      data: nomination
-    });
-    setNominationSubmitted(true);
+    setNominationSubmitting(true);
+    setNominationError(null);
+    try {
+      await dataStore.saveSubmission({
+        form_type: 'lsa_nomination',
+        data: nomination
+      });
+      setNominationSubmitted(true);
+    } catch (err) {
+      console.error('Failed to submit LSA nomination', err);
+      setNominationError(FORM_SUBMIT_ERROR_MESSAGE);
+    } finally {
+      setNominationSubmitting(false);
+    }
   };
 
   const handleSurveySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await dataStore.saveSubmission({
-      form_type: 'lsa_impact',
-      data: survey
-    });
-    setSurveySubmitted(true);
+    setSurveySubmitting(true);
+    setSurveyError(null);
+    try {
+      await dataStore.saveSubmission({
+        form_type: 'lsa_impact',
+        data: survey
+      });
+      setSurveySubmitted(true);
+    } catch (err) {
+      console.error('Failed to submit LSA impact survey', err);
+      setSurveyError(FORM_SUBMIT_ERROR_MESSAGE);
+    } finally {
+      setSurveySubmitting(false);
+    }
   };
 
   return (
@@ -489,11 +512,14 @@ export const LibrarianSpotlightAfricaPage: React.FC = () => {
                   </div>
                 </div>
 
+                <FormSubmitError message={nominationError} />
+
                 <button
                   type="submit"
+                  disabled={nominationSubmitting}
                   className="w-full bg-brand-blue hover:bg-brand-blue-hover text-white py-3 rounded-lg text-sm font-bold shadow-md transition-all active:scale-95"
                 >
-                  Submit Nomination
+                  {nominationSubmitting ? 'Submitting...' : 'Submit Nomination'}
                 </button>
               </form>
             )}
@@ -606,11 +632,14 @@ export const LibrarianSpotlightAfricaPage: React.FC = () => {
                   />
                 </div>
 
+                <FormSubmitError message={surveyError} />
+
                 <button
                   type="submit"
+                  disabled={surveySubmitting}
                   className="w-full bg-brand-blue hover:bg-brand-blue-hover text-white py-3 rounded-lg text-sm font-bold shadow-md transition-all active:scale-95"
                 >
-                  Submit Impact Survey
+                  {surveySubmitting ? 'Submitting...' : 'Submit Impact Survey'}
                 </button>
               </form>
             )}
